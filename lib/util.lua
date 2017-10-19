@@ -39,12 +39,8 @@ function math.round(num, n)
 		return num
 	end
 end
-function math.clamp(a,low,high) --取三者中间的
-	if low<high then
-		return math.max(low,math.min(a,high))
-	else
-		return math.max(high,math.min(a,low))
-	end
+function math.clamp(a,b,c) --取三者中间的
+	return math.min(math.max(a,b),math.max(b,c),math.max(a,c))
 end
 
 function math.sign(x)
