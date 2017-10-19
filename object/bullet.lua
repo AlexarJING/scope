@@ -6,6 +6,7 @@ bullet.heat = 3
 bullet.tag = "bullet"
 bullet.damage_type = "structure"
 bullet.damage_point = 5
+bullet.name = "hell fire"
 function bullet:init(team,x,y,rotation,scale)
 	self.team = team
 	self.x = x
@@ -18,6 +19,7 @@ function bullet:init(team,x,y,rotation,scale)
 	self.fixture:setUserData(self)
 	table.insert(game.objects,self)
 	self.timer = 1
+	self.enable = true
 end
 
 function bullet:update(dt)
@@ -43,6 +45,5 @@ function bullet:destroy()
 	self.destroyed = true
 	self.body:destroy()
 end
-
 
 return bullet

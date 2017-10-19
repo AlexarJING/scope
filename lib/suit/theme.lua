@@ -14,7 +14,7 @@ theme.color = {
 
 -- HELPER
 function theme.getColorForState(opt)
-	local s = opt.state or "normal"
+	local s = opt.toggle or opt.state or "normal"
 	return (opt.color and opt.color[opt.state]) or theme.color[s]
 end
 
@@ -34,10 +34,10 @@ function theme.getVerticalOffsetForAlign(valign, font, h)
 	if valign == "top" then
 		return 0
 	elseif valign == "bottom" then
-		return h - font:getHeight()
+		return h - font:getHeight(text)
 	end
-	-- else: "middle"
-	return (h - font:getHeight()) / 2
+
+	return (h - font:getHeight(text)) / 2
 end
 
 -- WIDGET VIEWS
@@ -56,8 +56,15 @@ function theme.Button(text, opt, x,y,w,h)
 	love.graphics.setColor(c.fg)
 	love.graphics.setFont(opt.font)
 
-	y = y + theme.getVerticalOffsetForAlign(opt.valign, opt.font, h)
-	love.graphics.printf(text, x+2, y, w-4, opt.align or "center")
+	y = y + theme.getVerticalOffsetForAlign(opt.valign, opt.font,h)
+	local fw = opt.font:getWidth(text)
+	if string.find(text,"\n") then
+		local lineCount = math.ceil(fw/w)
+		love.graphics.printf(text, x+2, y - 0.5*opt.font:getHeight()*(lineCount), w-4, opt.align or "center")
+	else
+		love.graphics.printf(text, x+2, y , w-4, opt.align or "center")
+	end
+	
 end
 
 function theme.Panel(opt,x,y,w,h)

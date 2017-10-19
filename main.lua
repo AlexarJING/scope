@@ -1,6 +1,6 @@
 path = string.sub(...,1,-5)
 __TESTING = true
-__CONSOLE = true
+--__CONSOLE = true
 require (path.."lib/util")
 class=require (path.."lib/middleclass")
 gamestate= require (path.."lib/gamestate")
@@ -27,5 +27,5 @@ function love.update(dt)
 end
 
 function love.draw()
-   suit.draw() 
+   --suit.draw() 
 end

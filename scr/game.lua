@@ -1,8 +1,10 @@
 local game = class("game")
 local debugDraw = require("lib/debugDraw")
 local Ship = require("object/ship")
+local NPC = require("object/ai_ctrl_ship")
 local Grid = require("lib/grid")
 local collision =  require ("scr/collide")
+local hud = require("scr/hud")
 function game:init()
     self.world = love.physics.newWorld(0, 0, false)
     self.world:setCallbacks(collision.begin,collision.leave,collision.pre,collision.post)
@@ -10,16 +12,19 @@ function game:init()
     self.teams = {}
     self.enemies = {}
     self.cam = Camera.new(-5000,-5000,10000,10000)
-    self.cam:setScale(0.5)
+    self.zoom = 1
+    self.cam:setScale(self.zoom)
     self.grid = Grid.new(self.cam)
+    self.hud = hud
 end
 
 function game:start()
     for i = 1, 10 do
-        self.enemies[i] = Ship(2,love.math.random(-500,500),
+        self.enemies[i] = NPC(2,love.math.random(-500,500),
             love.math.random(-500,500),30,love.math.random()*2*Pi)
     end
     self.player = Ship(1,0,0,30)
+    self.hud:init()
 end
 
 function game:update(dt)
@@ -33,6 +38,7 @@ function game:update(dt)
     end
     self.objects = newTab
     self.world:update(dt)
+    self.hud:update()
 end
 
 function game:draw()
@@ -43,21 +49,18 @@ function game:draw()
     end
     love.graphics.setColor(255,0,0)
     --debugDraw.draw(self.world)
-    end) 
-    self:drawHub()
+    end)
+    self.hud:draw()
+    suit.draw()
 end
 
-function game:drawHub()
-    love.graphics.setColor(0, 255, 0, 255)
-    local rad = h()/2.5
-    love.graphics.circle("line", w()/2, h()/2, rad)
-    for i,s in ipairs(self.enemies) do
-        local dist = math.getDistance(self.player.x,self.player.y,s.x,s.y)
-        if dist*self.cam.scale>rad then
-            local angle = math.getRot(self.player.x,self.player.y,s.x,s.y)
-            love.graphics.circle("fill", w()/2+math.sin(angle)*rad, h()/2-math.cos(angle)*rad, 5)
-        end
-    end
+
+
+function game:setZoom(d)
+    self.zoom = self.zoom + d/10
+    if self.zoom < 0.1 then self.zoom = 0.1 end
+    self.cam:setScale(self.zoom)
+    self.cam.x,self.cam.y = self.player.x,self.player.y
 end
 
 return game

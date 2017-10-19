@@ -2,6 +2,8 @@ local ship = class("ship")
 
 ship.force_front = 100
 ship.torque = 1000
+
+
 ship.fire_cd = 0.1
 ship.armor_max = 100
 ship.shield_max = 100
@@ -10,28 +12,35 @@ ship.cool_down_effect = 50
 ship.tag = "ship"
 ship.slot = {
 	core = {
-		{offx = 0,offy = 0,rot = 0}
+		{offx = 0,offy = 0,rot = 0,enabled = true}
 	},
 	universal = {
-		{offx = 0.3, offy = -0.3, rot = 1/24},
-		{offx = -0.3, offy = -0.3, rot = -1/24},
-		{offx = 0, offy = -0.8, rot = 0},
+		{offx = 0.3, offy = -0.3, rot = 1/24,enabled = true},
+		{offx = -0.3, offy = -0.3, rot = -1/24,enabled = true},
+		{offx = 0, offy = -0.8, rot = 0,enabled = true},
+		{offx = 0, offy = 0.4, rot = 0,enabled = true},
 	},
 	engine = {
-		{offx = -0.2, offy = 0.5, rot = 1},
-		{offx = 0.2, offy = 0.5, rot = 1},
+		{offx = -0.2, offy = 0.5, rot = 1,enabled = true},
+		{offx = 0.2, offy = 0.5, rot = 1,enabled = true},
 	},
 }
 local Puff = require "object/puff"
-local Bullet = require "object/bullet"
+local Weapon = require "object/weapon"
 local Fragment = require "object/fragment"
 local Explosion = require "object/explosion"
+local KeyCore = require "object/key_core"
+
+local Engine = require "object/engine"
+local Shield = require "object/shield"
+
 ship.linearDamping = 0.5
 function ship:init(team,x,y,scale,rotation)
 	self.team =team
 	self.x = x
 	self.y = y
 	self.scale = scale
+	self.angle = 0
 	self.shape = love.physics.newCircleShape(0,0,scale)
 	self.body = love.physics.newBody(game.world, x, y, "dynamic")
 	self.fixture = love.physics.newFixture(self.body, self.shape,0.1)
@@ -44,22 +53,22 @@ function ship:init(team,x,y,scale,rotation)
 	self.fire_timer = self.fire_cd
 	table.insert(game.objects,self)
 	self.slot = table.copy(ship.slot)
-	self:add_plugin(Bullet,1)
-	self:add_plugin(Bullet,2)
-	self:add_plugin(Bullet,3)
-	self.shield_coverage = 0.5
+	self:add_plugin(Weapon,1)
+	self:add_plugin(Weapon,2)
+	self:add_plugin(Weapon,3)
+	self:add_plugin(KeyCore,1)
+	self:add_plugin(Engine,1)
+	self:add_plugin(Engine,2)
+	self:add_plugin(Shield,4)
+	self.shield_coverage = 0.3
+	self.showBar = false
 end
 
 function ship:update(dt)
 	if self.destroyed then return end
 	self:sync()
-	self:cool_down(dt)
-	if self == game.player then 
-		self:keyCtrl() 
-	else
-		self:ai(dt)
-	end
-	self:slot_universal_update(dt)
+	self:cool_down(dt)	
+	self:slot_update(dt)
 end
 
 local function inRect(x,y,rx,ry,rw,rh)
@@ -72,10 +81,14 @@ end
 
 function ship:draw()
 	if not self:inScreen() then return end 
-	self:drawBar()
+	if self.showBar then self:drawBar() end
+	love.graphics.push()
+	love.graphics.translate(self.x, self.y)
+	love.graphics.rotate(self.angle)
 	self:drawBody()
 	self:drawSlot()
 	self:drawShield()
+	love.graphics.pop()
 end
 
 function ship:destroy()
@@ -83,6 +96,7 @@ function ship:destroy()
 	self.body:destroy()
 	self:makeFragment()
 	self:makeExplosion()
+	game.cam:shake()
 	table.removeItem(game.enemies,self)
 end
 
@@ -98,37 +112,48 @@ end
 function ship:sync()
 	self.x,self.y = self.body:getPosition()
 	self.angle = self.body:getAngle()
+	self.body:setLinearDamping(self.linearDamping)
+	self.openFire = false
+	self.openShield = false
+	self.sidePower = 0
+	self.pushPower = 0
+	self.turnPower = 0
+	self.shieldPower = 0
 end
 
-
-function ship:slot_universal_update(dt)
+function ship:slot_update(dt)
+	for i,slot in ipairs(self.slot.engine) do
+		if slot.enabled and slot.plugin then 
+			local s,t,p = slot.plugin:update(dt)
+			
+		end
+	end
+	for i,slot in ipairs(self.slot.core) do
+		if slot.enabled and slot.plugin then 
+			slot.plugin:update(dt)
+		end
+	end
 	for i,slot in ipairs(self.slot.universal) do
-		if slot.stype == "weapon" then
-			slot.fire_timer = slot.fire_timer - dt
-			if slot.fire_timer<0 and self.openFire then
-				slot.fire_timer = slot.fire_cd
-				self.heat = self.heat + slot.heat
-				if self.heat>=self.heat_max then
-					self.heat = self.heat_max
-					self.overheat = true
-					self.openFire = false
-				end
-				local x,y = math.axisRot(slot.offx*self.scale,slot.offy*self.scale,self.angle)
-				slot.plugin(self.team,self.x+x,self.y+y,self.angle+slot.rot*Pi)
-			end
+		if slot.enabled and slot.plugin then 
+			slot.plugin:update(dt)
 		end
 	end
 end
 
-function ship:add_plugin(plugin,position)
-	if plugin.stype == "weapon" then
-		local slot = self.slot.universal[position]
-		slot.plugin = plugin
-		slot.fire_cd = plugin.fire_cd
-		slot.fire_timer = slot.fire_cd
-		slot.heat = plugin.heat
-		slot.stype = "weapon"
+
+function ship:check_overheat()
+	if self.heat>=self.heat_max then
+		self.heat = self.heat_max
+		self.overheat = true
+		self.openFire = false
 	end
+end
+
+function ship:add_plugin(plugin,position)
+	
+	local slot = self.slot[plugin.stype][position]
+	slot.plugin = plugin(self,slot)
+
 end
 
 function ship:cool_down(dt)
@@ -146,120 +171,58 @@ function ship:makePuff()
 	end
 end
 
-function ship:makeFragment()
-	if not self:inScreen() then return end
-	self.canvas = love.graphics.newCanvas(self.scale*3,self.scale*3)
-	self.canvas:renderTo(function()
+function ship:getCanvas()
+	local canvas = love.graphics.newCanvas(self.scale*3,self.scale*3)
+	canvas:renderTo(function()
 		love.graphics.setColor(255, 255, 255, 255)
 		--love.graphics.rectangle("fill",0,0,self.scale*2,self.scale*2)
 		love.graphics.push()
-		love.graphics.rotate(-self.angle)
-		love.graphics.translate(-self.x+self.scale*1.5, -self.y+self.scale*1.5)
-		self:draw()
+		love.graphics.translate(self.scale*1.5, self.scale*1.5)
+		love.graphics.rotate(self.angle)
+		self:drawBody()
+		self:drawSlot()
 		love.graphics.pop()
 	end)
+	return canvas
+end
+
+function ship:makeFragment()
+	if not self:inScreen() then return end
+	self.canvas = self:getCanvas()
 	local fragments = Fragment(self.x,self.y,self.angle,self.canvas)
-	--table.insert(game.objects,fragments)
 	self.canvas = nil
 end
 
-function ship:keyCtrl()
-	if self.overheat then return end
-	if love.keyboard.isDown("w") then
-		self.body:applyForce(self.force_front*math.sin(self.angle),-self.force_front*math.cos(self.angle))
-		self:makePuff()
-	elseif love.keyboard.isDown("s") then
-		self.body:applyForce(-self.force_front*math.sin(self.angle),self.force_front*math.cos(self.angle))
-		self:makePuff()
-	end
 
-	if love.keyboard.isDown("a") then
-		self.body:applyTorque(-self.torque)
-		self:makePuff()
-	elseif love.keyboard.isDown("d") then
-		self.body:applyTorque(self.torque)
-		self:makePuff()
-	end
+function ship:push(a)
+	a = a or 1
+	local dt = love.timer.getDelta()
+	self.body:applyLinearImpulse(a *self.pushPower*math.sin(self.angle)*dt,
+		-a*self.pushPower*math.cos(self.angle)*dt)
+	self:makePuff()
+end
 
-	if love.keyboard.isDown("q") then
-		self.body:applyForce(-self.force_front*math.cos(self.angle),self.force_front*math.sin(self.angle))
-		self:makePuff()
-	elseif love.keyboard.isDown("e") then
-		self.body:applyForce(self.force_front*math.cos(self.angle),-self.force_front*math.sin(self.angle))
-		self:makePuff()
-	end 
+function ship:turn(a)
+	a = a or 1
+	local dt = love.timer.getDelta()
+	self.body:applyAngularImpulse(-a*self.turnPower*dt)
+	self:makePuff()
+end
 
-	if love.keyboard.isDown("c") then
-		self.body:setLinearDamping(3)
-		self:makePuff()
-	else
-		self.body:setLinearDamping(self.linearDamping)
-	end
+function ship:side(a)
+	a = a or 1
+	local dt = love.timer.getDelta()
+	self.body:applyLinearImpulse(-a*self.sidePower*math.cos(self.angle)*dt,
+		-a*self.sidePower*math.sin(self.angle)*dt)
+	self:makePuff()
+end
 
-	if love.keyboard.isDown("space") then
-		self.openFire = true
-	else
-		self.openFire = false
-	end
-
-	if love.keyboard.isDown("lshift") then
-		self.openShield = true
-	else
-		self.openShield = false
-	end
-
-	if love.keyboard.isDown("1") then
-		self.shield_coverage = self.shield_coverage + 0.01
-	elseif love.keyboard.isDown("2") then
-		self.shield_coverage = self.shield_coverage - 0.01
-	end
+function ship:stop(anti)
+	self.body:setLinearDamping(3)
 end
 
 function ship:ai(dt)
-	if not self.nextMovement then
-		self.nextMovement = love.math.random()*3
-		self.action = function() end
-	end
-	self.nextMovement = self.nextMovement - dt
-	if self.nextMovement<0 then
-		
-		local rnd = love.math.random()
-		if rnd<0.2 then
-			self.nextMovement = love.math.random()*5
-			self.action = function()
-				self.body:applyForce(self.force_front*math.sin(self.angle),-self.force_front*math.cos(self.angle))
-				self:makePuff()			
-			end
-		elseif rnd<0.4 then
-			self.nextMovement = love.math.random()*2
-			self.action = function()
-				self.body:applyForce(self.force_front*math.sin(self.angle),-self.force_front*math.cos(self.angle))
-				self.body:applyTorque(-self.torque)
-				self:makePuff()
-				self:makePuff()		
-			end
-		elseif rnd < 0.6 then
-			self.nextMovement = love.math.random()*2
-			self.action = function()
-				self.body:applyForce(self.force_front*math.sin(self.angle),-self.force_front*math.cos(self.angle))
-				self.body:applyTorque(self.torque)
-				self:makePuff()
-				self:makePuff()		
-			end
-		elseif rnd < 0.8 then
-			self.nextMovement = love.math.random()*3
-			self.action = function()
-				self.body:setLinearDamping(3)
-				self:makePuff()
-			end
-		else
-			self.nextMovement = love.math.random()*3
-			self.action = function() end--do nothing
-		end
-	else
-		self.body:setLinearDamping(self.linearDamping)
-		self:action()
-	end
+	
 end
 
 function ship:drawBar()
@@ -278,9 +241,7 @@ function ship:drawBar()
 end
 
 function ship:drawBody()
-	love.graphics.push()
-	love.graphics.translate(self.x, self.y)
-	love.graphics.rotate(self.angle)
+	
 	love.graphics.setColor(150, 50, 255, 255)
 	local len = self.scale
 	love.graphics.polygon("line", 
@@ -298,7 +259,6 @@ function ship:drawBody()
 		len,len,
 		0,len/3,
 		-len,len)
-	love.graphics.pop()
 end
 
 local function oneSlot(x,y)
@@ -310,10 +270,7 @@ end
 
 
 function ship:drawShield()
-	if not self.openShield then return end
-	love.graphics.push()
-	love.graphics.translate(self.x, self.y)
-	love.graphics.rotate(self.angle)
+	if not self.openShield or self.shieldPower == 0 then return end
 
 	local function to_cut()
 		love.graphics.circle("fill", 0, 
@@ -328,14 +285,11 @@ function ship:drawShield()
     love.graphics.circle("fill", 0, 0, self.scale*1.5)
  	
     love.graphics.setStencilTest()
-	love.graphics.print(self.shield_coverage)
-	love.graphics.pop()
+
 end
 
 function ship:drawSlot()
-	love.graphics.push()
-	love.graphics.translate(self.x, self.y)
-	love.graphics.rotate(self.angle)
+
 	local len = self.scale
 		
 	for i,slot in ipairs(self.slot.core) do
@@ -362,8 +316,6 @@ function ship:drawSlot()
 		oneSlot()
 		love.graphics.pop()
 	end
-	love.graphics.pop()	
-
 end
 
 function ship:damage(damage_point,damage_type)

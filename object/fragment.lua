@@ -1,11 +1,5 @@
 local frag=class("fragment")
-function math.axisRot_P(x,y,x1,y1,rot)
-  x=x -x1
-  y=y- y1
-  local xx=math.cos(rot)*x-math.sin(rot)*y
-  local yy=math.cos(rot)*y+math.sin(rot)*x
-  return xx+x1,yy+y1
-end
+
 
 
 
@@ -69,6 +63,7 @@ function frag:setSpeed()
 end
 
 function frag:update(dt)
+
 	self.life=self.life -dt
 	if self.life<0 then self.destroyed=true end
 	for x= 1,self.rate do
@@ -84,12 +79,14 @@ end
 function frag:draw(offx,offy)
 	offx=offx or 0
 	offy=offy or 0
+	
 	love.graphics.setColor(255, 255, 255, 255*self.life/self.during)
 	for x= 1,self.rate do
 		for y= 1,self.rate do
 			love.graphics.draw(self.canvas, self.quads[x][y],self.qX[x][y]+offx, self.qY[x][y]+offy, self.qSRot[x][y],1,1,self.sizeX/2,self.sizeY/2)			
 		end
 	end
+	--love.graphics.draw(self.canvas,self.x,self.y,self.rot,1,1,self.sw/2,self.sh/2)
 end
 
 return frag

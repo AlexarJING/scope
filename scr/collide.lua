@@ -3,14 +3,18 @@ local c={}
 local function begin(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	if objA.tag == "bullet" and objB.tag == "ship" and objA.team~= objB.team then
+	if objA.team== objB.team and objA.tag == "bullet" then
+		coll:setEnabled(false)
+		return
+	end
+	if objA.tag == "bullet" and objB.tag == "ship" then
 		objA:destroy()
 		objB:damage(objA.damage_point,objA.damage_type)
 	end 
 end
 
 local function pre(a,b,coll)
-	--coll:setEnabled(false)
+	--
 end
 
 local function post(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)

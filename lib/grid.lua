@@ -14,7 +14,7 @@ local code=[[
 	vec4 effect( vec4 color, Image texture, vec2 tc, vec2 sc ){
 		if (abs(mod(floor(sc.x-screenW/2)+offx,gridSize))<=1 || 
 			abs(mod(floor(sc.y-screenH/2)+offy,gridSize))<=1 ){
-			return vec4(0,1,0,0.3);
+			return vec4(0,1,0,0.1);
 			
 		}
 		else {
