@@ -72,14 +72,25 @@ end
 
 function hud:drawRadar()
     local player = self.player
-    love.graphics.setColor(0, 255, 0, 255)
-    local rad = h()/3
-    love.graphics.circle("line", w()/2, h()/2, rad)
     for i,s in ipairs(game.enemies) do
-        local dist = math.getDistance(player.x,player.y,s.x,s.y)
-        if dist*game.cam.scale>rad then
-            local angle = math.getRot(player.x,player.y,s.x,s.y)
-            love.graphics.circle("fill", w()/2+math.sin(angle)*rad, h()/2-math.cos(angle)*rad, 5)
+        local kx,ky=(s.x-player.x)/(0.5*w()/game.cam.scale),(s.y-player.y)/(0.5*h()/game.cam.scale)
+        if math.abs(kx)>1 or math.abs(ky)>1 then -- 在当前视野范围外
+            -- local dist = math.getDistance(player.x,player.y,s.x,s.y)
+            -- local angle = math.getRot(player.x,player.y,s.x,s.y)
+            local dist_norm = (kx^2+ky^2)^0.5   -- 归一化距离
+            -- 如果目标处于雷达范围之外，则不显示
+            -- if dist_norm > radar.dist then
+                -- xxxx
+            -- end
+            local _=255-dist_norm*20
+            if _>0 then
+                love.graphics.setColor(255, 0, 0, _)
+                if math.abs(kx)>math.abs(ky) then
+                    love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
+                else
+                    love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
+                end
+            end
         end
     end
 end
