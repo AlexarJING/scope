@@ -1,7 +1,4 @@
 local game = class("game")
-local debugDraw = require("lib/debugDraw")
-local Ship = require("object/ship")
-local NPC = require("object/ai_ctrl_ship")
 local Grid = require("lib/grid")
 local collision =  require ("scr/collide")
 local hud = require("scr/hud")
@@ -19,11 +16,13 @@ function game:init()
 end
 
 function game:start()
+    
     for i = 1, 10 do
-        self.enemies[i] = NPC(2,love.math.random(-500,500),
+        self.enemies[i] = obj.ship.npc(2,love.math.random(-500,500),
             love.math.random(-500,500),30,love.math.random()*2*Pi)
     end
-    self.player = Ship(1,0,0,30)
+    obj.ship.boss(2,1500,-1500)
+    self.player = obj.ship.player(1,0,0,30)
     self.hud:init()
 end
 

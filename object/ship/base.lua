@@ -1,10 +1,4 @@
-local ship = class("ship")
-
-ship.force_front = 100
-ship.torque = 1000
-
-
-ship.fire_cd = 0.1
+local ship = class("ship_base")
 ship.armor_max = 100
 ship.shield_max = 100
 ship.heat_max = 100
@@ -14,55 +8,35 @@ ship.slot = {
 	core = {
 		{offx = 0,offy = 0,rot = 0,enabled = true}
 	},
-	universal = {
-		{offx = 0.3, offy = -0.3, rot = 1/24,enabled = true},
-		{offx = -0.3, offy = -0.3, rot = -1/24,enabled = true},
+	universal = {	
 		{offx = 0, offy = -0.8, rot = 0,enabled = true},
-		{offx = 0, offy = 0.4, rot = 0,enabled = true},
 	},
 	engine = {
-		{offx = -0.2, offy = 0.5, rot = 1,enabled = true},
-		{offx = 0.2, offy = 0.5, rot = 1,enabled = true},
+		{offx = 0, offy = 0.5, rot = 1,enabled = true},
 	},
 }
-local Puff = require "object/puff"
-local Weapon = require "object/weapon"
-local Fragment = require "object/fragment"
-local Explosion = require "object/explosion"
-local KeyCore = require "object/key_core"
-
-local Engine = require "object/engine"
-local Shield = require "object/shield"
 
 ship.linearDamping = 0.5
+ship.angularDamping = 2
 function ship:init(team,x,y,scale,rotation)
 	self.team =team
 	self.x = x
 	self.y = y
-	self.scale = scale
+	self.scale = scale or 30
 	self.angle = 0
-	self.shape = love.physics.newCircleShape(0,0,scale)
+	self.shape = love.physics.newCircleShape(0,0,self.scale)
 	self.body = love.physics.newBody(game.world, x, y, "dynamic")
 	self.fixture = love.physics.newFixture(self.body, self.shape,0.1)
 	self.fixture:setUserData(self)
-	self.armor = 5
-	self.shield = 60
-	self.heat = 50
-	self.body:setAngularDamping(2)
-	self.body:setLinearDamping(1)
-	self.fire_timer = self.fire_cd
+	self.armor = self.armor_max
+	self.shield = self.shield_max
+	self.heat = 0
+	self.body:setAngularDamping(self.angularDamping)
+	self.body:setLinearDamping(self.linearDamping)
 	table.insert(game.objects,self)
-	self.slot = table.copy(ship.slot)
-	self:add_plugin(Weapon,1)
-	self:add_plugin(Weapon,2)
-	self:add_plugin(Weapon,3)
-	self:add_plugin(KeyCore,1)
-	self:add_plugin(Engine,1)
-	self:add_plugin(Engine,2)
-	self:add_plugin(Shield,4)
-	self.shield_coverage = 0.3
-	self.showBar = false
 end
+
+
 
 function ship:update(dt)
 	if self.destroyed then return end
@@ -81,7 +55,6 @@ end
 
 function ship:draw()
 	if not self:inScreen() then return end 
-	if self.showBar then self:drawBar() end
 	love.graphics.push()
 	love.graphics.translate(self.x, self.y)
 	love.graphics.rotate(self.angle)
@@ -100,10 +73,15 @@ function ship:destroy()
 	table.removeItem(game.enemies,self)
 end
 
+function ship:resetSlots()
+	self.slot = table.copy(self.slot)
+end
+
 function ship:makeExplosion()
 	if not self:inScreen() then return end
 	for i = 1,5 do 
-		delay:new((i-1)*0.1,function()Explosion(
+		delay:new((i-1)*0.1,function()
+			obj.others.explosion(
 			self.x-love.math.random()*10*i+5*i,
 			self.y-love.math.random()*10*i+5*i,self.scale/i,5)end)
 	end
@@ -124,8 +102,7 @@ end
 function ship:slot_update(dt)
 	for i,slot in ipairs(self.slot.engine) do
 		if slot.enabled and slot.plugin then 
-			local s,t,p = slot.plugin:update(dt)
-			
+			slot.plugin:update(dt)
 		end
 	end
 	for i,slot in ipairs(self.slot.core) do
@@ -146,19 +123,32 @@ function ship:check_overheat()
 		self.heat = self.heat_max
 		self.overheat = true
 		self.openFire = false
+		for i,s in ipairs(self.slot.engine) do
+			s.enabled = false
+		end
 	end
 end
 
 function ship:add_plugin(plugin,position)
-	
 	local slot = self.slot[plugin.stype][position]
 	slot.plugin = plugin(self,slot)
-
 end
 
 function ship:cool_down(dt)
 	self.heat = self.heat - dt*self.cool_down_effect
-	if self.heat<0 then self.heat=0 ; self.overheat = false end
+	if self.overheat then
+		obj.others.puff(self.x-love.math.random()*self.scale*2 + self.scale,
+			self.y+-love.math.random()*self.scale*2 + self.scale)
+	end
+	if self.heat<0 then 
+		self.heat=0
+		if self.overheat then
+			self.overheat = false 
+			for i,s in ipairs(self.slot.engine) do
+				s.enabled = true
+			end
+		end
+	end
 end
 
 function ship:makePuff()
@@ -166,7 +156,7 @@ function ship:makePuff()
 	if not self:inScreen() then return end
 	for i,slot in ipairs(self.slot.engine) do
 		local x,y = math.axisRot(slot.offx*self.scale,-slot.offy*self.scale,self.angle+slot.rot*Pi)
-		Puff(self.x+x,self.y+y)
+		obj.others.puff(self.x+x,self.y+y)
 		self.heat = self.heat + 0.2
 	end
 end
@@ -189,7 +179,7 @@ end
 function ship:makeFragment()
 	if not self:inScreen() then return end
 	self.canvas = self:getCanvas()
-	local fragments = Fragment(self.x,self.y,self.angle,self.canvas)
+	local fragments = obj.others.fragment(self.x,self.y,self.angle,self.canvas)
 	self.canvas = nil
 end
 
@@ -217,28 +207,10 @@ function ship:side(a)
 	self:makePuff()
 end
 
-function ship:stop(anti)
+function ship:stop()
 	self.body:setLinearDamping(3)
 end
 
-function ship:ai(dt)
-	
-end
-
-function ship:drawBar()
-	love.graphics.setColor(50, 255, 50, 50)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-20, self.scale*2, 5)
-	love.graphics.setColor(50, 255, 50, 255)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-20, self.scale*2*self.armor/self.armor_max, 5)
-	love.graphics.setColor(255, 55, 250, 50)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-15, self.scale*2, 5)
-	love.graphics.setColor(255, 55, 250, 255)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-15, self.scale*2*self.shield/self.shield_max, 5)
-	love.graphics.setColor(255, 255, 0, 50)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-10, self.scale*2, 5)
-	love.graphics.setColor(255, 255, 0, 255)
-	love.graphics.rectangle("fill", self.x-self.scale, self.y-self.scale-10, self.scale*2*self.heat/self.heat_max, 5)
-end
 
 function ship:drawBody()
 	
@@ -298,6 +270,9 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(255, 0, 0, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 	for i,slot in ipairs(self.slot.universal) do
@@ -306,6 +281,9 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(0, 255, 0, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 	for i,slot in ipairs(self.slot.engine) do
@@ -314,11 +292,17 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(0, 0, 255, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 end
 
 function ship:damage(damage_point,damage_type)
+	if self.open_shield and self.shieldPower>0 then
+		damage_point = damage_point - damage_point*shieldPower/100
+	end
 	self.armor = self.armor - damage_point
 	if self.armor<0 then self:destroy() end
 	if damage_type == "structure" then

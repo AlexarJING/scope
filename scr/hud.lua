@@ -30,6 +30,7 @@ end
 function hud:draw()
     self:drawRadar()
     self:drawState()
+    self:drawFoeState()
 end
 
 function hud:updateSlot()
@@ -45,7 +46,8 @@ function hud:updateSlot()
     
     for i = 1, #self.engine do
         local slot = self.engine[i]
-        if suit.Button(i.."\n"..slot.plugin.name,{toggle = slot.enabled and "active" or nil},
+        local name = slot.plugin and slot.plugin.name or "not used"
+        if suit.Button(i.."\n"..name,{toggle = slot.enabled and "active" or nil},
             w()-self.scale*1.2,
             h()/2-#self.universal*self.scale/2+(i-1)*(self.scale+2),
             self.scale,self.scale).hit then
@@ -71,28 +73,11 @@ function hud:updateInfo()
 end
 
 function hud:drawRadar()
-    local player = self.player
-    for i,s in ipairs(game.enemies) do
-        local kx,ky=(s.x-player.x)/(0.5*w()/game.cam.scale),(s.y-player.y)/(0.5*h()/game.cam.scale)
-        if math.abs(kx)>1 or math.abs(ky)>1 then -- 在当前视野范围外
-            -- local dist = math.getDistance(player.x,player.y,s.x,s.y)
-            -- local angle = math.getRot(player.x,player.y,s.x,s.y)
-            local dist_norm = (kx^2+ky^2)^0.5   -- 归一化距离
-            -- 如果目标处于雷达范围之外，则不显示
-            -- if dist_norm > radar.dist then
-                -- xxxx
-            -- end
-            local _=255-dist_norm*20
-            if _>0 then
-                love.graphics.setColor(255, 0, 0, _)
-                if math.abs(kx)>math.abs(ky) then
-                    love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
-                else
-                    love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
-                end
-            end
-        end
-    end
+
+end
+
+function hud:drawFoeState()
+
 end
 
 function hud:drawState()

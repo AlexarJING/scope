@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"shi",
+				"shield_max"
+			],
+			[
+				"obj",
+				"object"
+			],
+			[
 				"desto",
 				"destroy"
 			],
@@ -210,10 +218,6 @@
 			[
 				"tav",
 				"table.remove\t(table [, pos])"
-			],
-			[
-				"shi",
-				"shield"
 			],
 			[
 				"file",
@@ -510,20 +514,26 @@
 			[
 				"font",
 				"love.graphics.newFont"
-			],
-			[
-				"pri",
-				"love.graphics.print"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "main.lua",
+			"file": "scr/objLoader.lua",
 			"settings":
 			{
-				"buffer_size": 809,
+				"buffer_size": 596,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "objLoader.lua"
+			}
+		},
+		{
+			"file": "object/plugin/universal/weapon.lua",
+			"settings":
+			{
+				"buffer_size": 762,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -532,34 +542,71 @@
 			"file": "scr/game.lua",
 			"settings":
 			{
-				"buffer_size": 1753,
+				"buffer_size": 1611,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "object/ship.lua",
+			"file": "object/ship/base.lua",
 			"settings":
 			{
-				"buffer_size": 10179,
+				"buffer_size": 7230,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "base.lua"
+			}
+		},
+		{
+			"file": "object/plugin/base.lua",
+			"settings":
+			{
+				"buffer_size": 267,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "object/explosion.lua",
+			"file": "scr/hud.lua",
 			"settings":
 			{
-				"buffer_size": 983,
+				"buffer_size": 4285,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/F/Love2D Project/tetris/bloom.lua",
+			"file": "object/ship/boss.lua",
 			"settings":
 			{
-				"buffer_size": 10621,
+				"buffer_size": 1775,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "object/ship/npc.lua",
+			"settings":
+			{
+				"buffer_size": 278,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "object/plugin/core/ai_core.lua",
+			"settings":
+			{
+				"buffer_size": 1043,
+				"encoding": "UTF-8",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "object/ship/player.lua",
+			"settings":
+			{
+				"buffer_size": 1092,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -738,30 +785,64 @@
 	"expanded_folders":
 	[
 		"/F/Love2D Project/scope",
-		"/F/Love2D Project/scope/lib",
 		"/F/Love2D Project/scope/misc",
 		"/F/Love2D Project/scope/object",
+		"/F/Love2D Project/scope/object/plugin",
+		"/F/Love2D Project/scope/object/plugin/core",
+		"/F/Love2D Project/scope/object/plugin/engine",
+		"/F/Love2D Project/scope/object/plugin/universal",
+		"/F/Love2D Project/scope/object/ship",
 		"/F/Love2D Project/scope/res",
-		"/F/Love2D Project/scope/scene",
 		"/F/Love2D Project/scope/scr"
 	],
 	"file_history":
 	[
-		"/F/Love2D Project/scope/conf.lua",
-		"/F/Love2D Project/scope/scr/collide.lua",
+		"/F/Love2D Project/scope/object/plugin/universal/analyser.lua",
+		"/F/Love2D Project/scope/object/ship.lua",
+		"/F/Love2D Project/scope/object/others/bullet.lua",
+		"/F/Love2D Project/scope/object/plugin/universal/shield.lua",
+		"/F/Love2D Project/scope/object/plugin/universal/radar.lua",
+		"/F/Love2D Project/scope/object/plugin/engine/engine.lua",
+		"/F/Love2D Project/scope/main.lua",
+		"/F/Love2D Project/scope/object/plugin/universal/weapon.lua",
+		"/F/Love2D Project/scope/object/plugin/universal/radar2.lua",
+		"/F/Love2D Project/scope/object/plugin/plugin.lua",
+		"/F/Love2D Project/scope/object/plugin/core/ai_core.lua",
+		"/F/Love2D Project/scope/object/plugin/core/key_core.lua",
+		"/F/Love2D Project/scope/scr/game.lua",
+		"/F/Love2D Project/scope/scr/hud.lua",
+		"/F/Love2D Project/scope/UPDATE",
+		"/F/Love2D Project/scope/object/plugin.lua",
+		"/F/Love2D Project/scope/object/analyser.lua",
+		"/F/Love2D Project/scope/object/engine.lua",
+		"/F/Love2D Project/scope/object/radar.lua",
+		"/F/Love2D Project/scope/object/radar2.lua",
+		"/F/Love2D Project/scope/object/shield.lua",
+		"/F/Love2D Project/scope/object/boss.lua",
+		"/F/Love2D Project/scope/object/ai_core.lua",
+		"/F/Love2D Project/scope/object/ai_ctrl_ship.lua",
+		"/F/Love2D Project/scope/scene/test.lua",
+		"/F/Love2D Project/scope/shield.lua",
+		"/F/Love2D Project/scope/object/explosion.lua",
 		"/F/Love2D Project/scope/object/bullet.lua",
-		"/F/Love2D Project/scope/lib/delay.lua",
+		"/F/Love2D Project/scope/lib/suit/theme.lua",
+		"/F/Love2D Project/scope/object/weapon.lua",
+		"/F/Love2D Project/scope/scr/collide.lua",
+		"/F/Love2D Project/scope/object/key_core.lua",
+		"/F/Love2D Project/scope/ai_core.lua",
+		"/F/Love2D Project/scope/key_core.lua",
 		"/F/Love2D Project/scope/object/fragment.lua",
+		"/F/Love2D Project/scope/lib/gamera.lua",
+		"/F/Love2D Project/scope/lib/suit/button.lua",
+		"/F/Love2D Project/scope/lib/grid.lua",
+		"/F/Love2D Project/scope/.gitignore",
+		"/F/Love2D Project/tetris/bloom.lua",
+		"/F/Love2D Project/scope/conf.lua",
+		"/F/Love2D Project/scope/lib/delay.lua",
 		"/F/Love2D Project/scope/lib/frag.lua",
 		"/F/Love2D Project/scope/lib/util.lua",
-		"/F/Love2D Project/scope/object/explosion.lua",
-		"/F/Love2D Project/scope/scr/game.lua",
 		"/F/Love2D Project/pixelRace/contact.lua",
-		"/F/Love2D Project/scope/lib/gamera.lua",
-		"/F/Love2D Project/scope/object/ship.lua",
 		"/F/Love2D Project/scope/object/puff.lua",
-		"/F/Love2D Project/scope/lib/grid.lua",
-		"/F/Love2D Project/scope/scene/test.lua",
 		"/F/Love2D Project/scope/object/ships/base.lua",
 		"/F/Love2D Project/bump.lua-demo/entities/puff.lua",
 		"/C/Users/Alexar/Desktop/支付信息.txt",
@@ -843,38 +924,7 @@
 		"/F/Love2D Project/space war/obj/ships/param/collector.lua",
 		"/F/Love2D Project/space war/obj/ships/abilities/collector.lua",
 		"/F/Love2D Project/space war/obj/ships/behavior/collector.lua",
-		"/F/Love2D Project/space war/obj/ships/param/miner.lua",
-		"/F/Love2D Project/space war/obj/ships/behavior/annihilator.lua",
-		"/F/Love2D Project/space war/lib/loveframes/objects/imagebutton.lua",
-		"/F/Love2D Project/space war/obj/weapons/proton.lua",
-		"/F/Love2D Project/space war/obj/ships/abilities/annihilator.lua",
-		"/F/Love2D Project/space war/scr/ui/scr/ui/ctrlGrid.lua",
-		"/F/Love2D Project/space war/scr/ui/gameUI.lua",
-		"/F/Love2D Project/space war/obj/weapons/impulse.lua",
-		"/F/Love2D Project/space war/obj/ships/param/annihilator.lua",
-		"/F/Love2D Project/space war/obj/ships/param/probe.lua",
-		"/F/Love2D Project/space war/lib/animation.lua",
-		"/F/Love2D Project/space war/obj/ships/param/observer.lua",
-		"/F/Love2D Project/space war/obj/ships/param/raider.lua",
-		"/F/Love2D Project/space war/obj/ships/param/substation.lua",
-		"/F/Love2D Project/space war/obj/ships/param/surveillant.lua",
-		"/F/Love2D Project/space war/obj/ships/param/wasp.lua",
-		"/F/Love2D Project/space war/obj/ships/param/bee.lua",
-		"/F/Love2D Project/space war/obj/ships/param/defender.lua",
-		"/F/Love2D Project/space war/obj/ships/param/destroyer.lua",
-		"/F/Love2D Project/space war/obj/ships/param/fearless.lua",
-		"/F/Love2D Project/space war/obj/ships/param/fighter.lua",
-		"/F/Love2D Project/space war/obj/ships/param/base.lua",
-		"/F/Love2D Project/space war/.gitignore",
-		"/F/Love2D Project/space war/obj/ships_param/surveillant.lua",
-		"/F/Love2D Project/space war/obj/ships_param/fighter.lua",
-		"/F/Love2D Project/space war/obj/ships_param/wasp.lua",
-		"/F/Love2D Project/space war/obj/ships/wasp.lua",
-		"/F/Love2D Project/space war/obj/ships_abilities/wasp.lua",
-		"/F/Love2D Project/space war/obj/ships/surveillant.lua",
-		"/F/Love2D Project/space war/obj/ships_param/raider.lua",
-		"/F/Love2D Project/space war/obj/ships_param/slicer.lua",
-		"/F/Love2D Project/space war/obj/ships_param/substation.lua"
+		"/F/Love2D Project/space war/obj/ships/param/miner.lua"
 	],
 	"find":
 	{
@@ -893,6 +943,12 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"plugin",
+			"self",
+			"engine",
+			"hub",
+			"self",
+			"layout",
 			"makepuff",
 			"puff",
 			"new",
@@ -1014,13 +1070,7 @@
 			"bref",
 			"avatar",
 			"showqu",
-			"tag",
-			"ui",
-			"grid",
-			"ctrlgrid",
-			"game:select",
-			"target",
-			"minimap"
+			"tag"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1028,6 +1078,15 @@
 		"regex": false,
 		"replace_history":
 		[
+			"weapon",
+			"radar",
+			"analyser",
+			"shield",
+			"ship",
+			"plugin",
+			"hud",
+			"player",
+			"hub",
 			"exp",
 			"self",
 			"bullet",
@@ -1146,16 +1205,7 @@
 			"hero",
 			"hand",
 			"field",
-			"deck",
-			"bank",
-			"cards",
-			"upper.",
-			"deck",
-			"hero",
-			"hand",
-			"field",
-			"bank",
-			"lower."
+			"deck"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -1166,29 +1216,87 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 8,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "main.lua",
+					"file": "scr/objLoader.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 809,
+						"buffer_size": 596,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								424,
-								424
+								226,
+								226
 							]
 						],
 						"settings":
 						{
-							"is_init_dirty_state": false,
+							"auto_name": "objLoader.lua",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "object/plugin/universal/weapon.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 762,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								157,
+								157
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "scr/game.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1611,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								779,
+								779
+							]
+						],
+						"settings":
+						{
 							"origin_encoding": "ASCII",
 							"syntax": "Packages/SublimeLove/Love.tmLanguage",
 							"tab_size": 4,
@@ -1198,130 +1306,215 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "scr/game.lua",
+					"buffer": 3,
+					"file": "object/ship/base.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1753,
+						"buffer_size": 7230,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								784,
-								784
+								1855,
+								1855
 							]
 						],
 						"settings":
 						{
-							"is_init_dirty_state": false,
-							"origin_encoding": "ASCII",
-							"syntax": "Packages/SublimeLove/Love.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"auto_name": "base.lua",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 132.0,
+						"translation.y": 1616.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "object/ship.lua",
+					"buffer": 4,
+					"file": "object/plugin/base.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10179,
+						"buffer_size": 267,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1617,
-								1617
+								139,
+								139
 							]
 						],
 						"settings":
 						{
-							"is_init_dirty_state": false,
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "scr/hud.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4285,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1345,
+								1345
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 660.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "object/ship/boss.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1775,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1110,
+								1110
+							]
+						],
+						"settings":
+						{
 							"origin_encoding": "ASCII",
 							"syntax": "Packages/SublimeLove/Love.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1316.0,
+						"translation.y": 1122.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "object/explosion.lua",
+					"buffer": 7,
+					"file": "object/ship/npc.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 983,
+						"buffer_size": 278,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								215,
-								215
+								125,
+								125
 							]
 						],
 						"settings":
 						{
-							"is_init_dirty_state": false,
 							"origin_encoding": "ASCII",
 							"syntax": "Packages/SublimeLove/Love.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 198.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "/F/Love2D Project/tetris/bloom.lua",
+					"buffer": 8,
+					"file": "object/plugin/core/ai_core.lua",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10621,
+						"buffer_size": 1043,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								987,
+								987
 							]
 						],
 						"settings":
 						{
-							"is_init_dirty_state": false,
+							"origin_encoding": "ASCII",
 							"syntax": "Packages/SublimeLove/Love.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 235.0,
+						"translation.y": 462.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "object/ship/player.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1092,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								650,
+								650
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/SublimeLove/Love.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 132.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
 					"type": "text"
 				}
 			]
@@ -1333,7 +1526,7 @@
 	},
 	"input":
 	{
-		"height": 34.0
+		"height": 42.0
 	},
 	"layout":
 	{
@@ -1370,7 +1563,7 @@
 	"project": "1.sublime-project",
 	"replace":
 	{
-		"height": 56.0
+		"height": 78.0
 	},
 	"save_all_on_build": true,
 	"select_file":
