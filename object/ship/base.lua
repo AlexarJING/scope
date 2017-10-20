@@ -136,6 +136,10 @@ end
 
 function ship:cool_down(dt)
 	self.heat = self.heat - dt*self.cool_down_effect
+	if self.overheat then
+		obj.others.puff(self.x-love.math.random()*self.scale*2 + self.scale,
+			self.y+-love.math.random()*self.scale*2 + self.scale)
+	end
 	if self.heat<0 then 
 		self.heat=0
 		if self.overheat then
@@ -266,6 +270,9 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(255, 0, 0, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 	for i,slot in ipairs(self.slot.universal) do
@@ -274,6 +281,9 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(0, 255, 0, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 	for i,slot in ipairs(self.slot.engine) do
@@ -282,6 +292,9 @@ function ship:drawSlot()
 		love.graphics.rotate(slot.rot*Pi)
 		love.graphics.setColor(0, 0, 255, 150)
 		oneSlot()
+		if slot.plugin then
+			slot.plugin:draw()
+		end
 		love.graphics.pop()
 	end
 end

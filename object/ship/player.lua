@@ -23,13 +23,13 @@ function ship:init(...)
 	self:resetSlots()
 	self:add_plugin(obj.plugin.universal.weapon,1)
 	self:add_plugin(obj.plugin.universal.weapon,2)
-	self:add_plugin(obj.plugin.universal.weapon,3)
+	self:add_plugin(obj.plugin.universal.laser,3)
 	self:add_plugin(obj.plugin.core.key_core,1)
 	self:add_plugin(obj.plugin.engine.engine,1)
 	self:add_plugin(obj.plugin.engine.engine,2)
 	self:add_plugin(obj.plugin.universal.shield,4)
 	self:add_plugin(obj.plugin.universal.radar2,5)
-	self:add_plugin(obj.plugin.universal.analyser,6)
+	--self:add_plugin(obj.plugin.universal.firstPerson,6)
 end
 
 return ship
