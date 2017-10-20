@@ -1,14 +1,5 @@
-local core = class("core")
+local core = class("core",obj.plugin.base)
 core.stype = "core"
-function core:init(ship,slot)
-	self.ship = ship
-	self.slot = slot
-	self.body = ship.body
-	self.side = ship.sidePower
-	self.turn = ship.turnPower
-	self.push = ship.pushPower
-end
-
 function core:update(dt)
 	if self.ship.overheat then return end
 	if not self.nextMovement then
@@ -43,15 +34,12 @@ function core:update(dt)
 			end
 		else
 			self.nextMovement = love.math.random()*3
-			self.action = function() end--do nothing
+			self.action = function() 
+				self.ship.openFire = true
+			end
 		end
 	else
 		self:action()
 	end
 end
-
-function core:draw()
-
-end
-
 return core

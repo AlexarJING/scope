@@ -1,17 +1,17 @@
-local plugin = class("plugin")
-plugin.stype = "universal"
-plugin.fire_cd = 0.3
-plugin.heat = 3
-plugin.pname = "hell fire"
-plugin.bullet = require "object/bullet"
-function plugin:init(ship,slot)
+local weapon = class("weapon",obj.plugin.base)
+weapon.stype = "universal"
+weapon.fire_cd = 0.3
+weapon.heat = 3
+weapon.pname = "hell fire"
+weapon.bullet = obj.others.bullet
+function weapon:init(ship,slot)
 	self.ship = ship
 	self.slot = slot
 	self.fire_timer = 0
-	self.name = plugin.pname
+	self.name = weapon.pname
 end
 
-function plugin:update(dt)
+function weapon:update(dt)
 	self.fire_timer = self.fire_timer - dt
 	if self.fire_timer<0 and self.ship.openFire then
 		self.fire_timer = self.fire_cd
@@ -28,8 +28,5 @@ function plugin:update(dt)
 	end
 end
 
-function plugin:draw()
 
-end
-
-return plugin
+return weapon

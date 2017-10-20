@@ -9,7 +9,7 @@ tween = require (path.."lib/tween")
 Anim = require (path.."lib/animation")
 suit = require "lib/suit"
 Camera = require "lib/gamera"
---res = require "scr/resloader"
+require "scr/objLoader"
 Game = require "scr/game"
 
 function love.load()

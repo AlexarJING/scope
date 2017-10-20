@@ -1,8 +1,5 @@
 local bullet = class("bullet")
 bullet.vf = 1000
-bullet.stype = "weapon"
-bullet.fire_cd = 0.3
-bullet.heat = 3
 bullet.tag = "bullet"
 bullet.damage_type = "structure"
 bullet.damage_point = 5
