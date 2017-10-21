@@ -6,3 +6,6 @@
 光学探测属性与分析器合并（todo）
 将cls整合，在game之前load objloader
 添加固定视角插件/激光武器
+2017/10/21
+添加自动瞄准武器 chain
+添加自动跟踪武器 missileLancher

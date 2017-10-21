@@ -21,15 +21,15 @@ ship.slot = {
 function ship:init(...)
 	obj.ship.base.init(self,...)
 	self:resetSlots()
-	self:add_plugin(obj.plugin.universal.weapon,1)
-	self:add_plugin(obj.plugin.universal.weapon,2)
-	self:add_plugin(obj.plugin.universal.laser,3)
+	--self:add_plugin(obj.plugin.universal.weapon,1)
+	--self:add_plugin(obj.plugin.universal.weapon,2)
+	--self:add_plugin(obj.plugin.universal.chain,3)
 	self:add_plugin(obj.plugin.core.key_core,1)
 	self:add_plugin(obj.plugin.engine.engine,1)
 	self:add_plugin(obj.plugin.engine.engine,2)
 	self:add_plugin(obj.plugin.universal.shield,4)
 	self:add_plugin(obj.plugin.universal.radar2,5)
-	--self:add_plugin(obj.plugin.universal.firstPerson,6)
+	self:add_plugin(obj.plugin.universal.missileLancher,6)
 end
 
 return ship

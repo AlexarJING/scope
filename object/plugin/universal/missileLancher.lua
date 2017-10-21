@@ -1,9 +1,9 @@
 local weapon = class("weapon",obj.plugin.base)
 weapon.stype = "universal"
-weapon.fire_cd = 0.3
-weapon.heat = 3
-weapon.pname = "hell fire"
-weapon.bullet = obj.others.bullet
+weapon.fire_cd = 0.6
+weapon.heat = 15
+weapon.pname = "snake"
+weapon.bullet = obj.others.missile
 function weapon:init(ship,slot)
 	self.ship = ship
 	self.slot = slot
@@ -24,7 +24,7 @@ function weapon:update(dt)
 		self.bullet(self.ship,
 			self.ship.x+x,
 			self.ship.y+y,
-			self.ship.angle+self.slot.rot*Pi)
+			self.ship.angle+self.slot.rot*Pi,self.ship.scale)
 	end
 end
 

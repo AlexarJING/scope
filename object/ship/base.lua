@@ -157,7 +157,6 @@ function ship:makePuff()
 	for i,slot in ipairs(self.slot.engine) do
 		local x,y = math.axisRot(slot.offx*self.scale,-slot.offy*self.scale,self.angle+slot.rot*Pi)
 		obj.others.puff(self.x+x,self.y+y)
-		self.heat = self.heat + 0.2
 	end
 end
 

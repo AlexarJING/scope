@@ -3,7 +3,7 @@ local c={}
 local function begin(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	if objA.team== objB.team and objA.tag == "bullet" then
+	if objA.team== objB.team then
 		coll:setEnabled(false)
 		return
 	end
@@ -14,7 +14,12 @@ local function begin(a,b,coll)
 end
 
 local function pre(a,b,coll)
-	--
+	local objA=a:getUserData()
+	local objB=b:getUserData()
+	if objA.team== objB.team then
+		coll:setEnabled(false)
+		return
+	end
 end
 
 local function post(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)
