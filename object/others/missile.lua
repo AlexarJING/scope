@@ -82,10 +82,10 @@ function missile:findTarget()
     local callback = function(fixture)
     	local obj = fixture:getUserData()
     	if obj.tag == "ship" and obj.team ~= self.team then
-    		table.insert(self.targets,{
-    			obj = obj,
-    			dist = math.getDistance(self.x,self.y,obj.x,obj.y)
-    			})
+    		local dist = math.getDistance(self.x,self.y,obj.x,obj.y)
+    		if dist < self.range then
+	    		table.insert(self.targets,{obj = obj,dist = dist})
+	    	end
     	end
     	return true
 	end

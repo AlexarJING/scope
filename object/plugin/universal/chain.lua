@@ -28,12 +28,9 @@ function weapon:findTarget()
     	local obj = fixture:getUserData()
     	if obj.tag == "ship" and obj.team ~= self.ship.team then
     		local rot = math.unitAngle(math.getRot(self.x,self.y,obj.x,obj.y)-self.ship.angle)
-    		--print(rot)
-    		if rot> - self.rotLimit and rot< self.rotLimit then
-	    		table.insert(self.targets,{
-	    			obj = obj,
-	    			dist = math.getDistance(self.x,self.y,obj.x,obj.y)
-	    			})
+    		local dist = math.getDistance(self.x,self.y,obj.x,obj.y)
+    		if rot> - self.rotLimit and rot< self.rotLimit and dist<self.range then
+	    		table.insert(self.targets,{obj = obj,dist = dist})
 	    	end
     	end
     	return true
