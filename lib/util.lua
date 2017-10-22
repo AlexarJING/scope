@@ -80,14 +80,13 @@ function math.axisRot_P(x,y,x1,y1,rot)
   return xx+x1,yy+y1
 end
 
+-- y轴正方向为0，顺时针增加[-0.5pi~1.5*pi]
+function math.getRot2(dx,dy)
+	return math.atan2(dy,dx)+0.5*math.pi
+end
 
-function math.getRot(x1,y1,x2,y2) --p1->p2 direction
-	if x1==x2 and y1==y2 then return 0 end 
-	local angle=math.atan((x1-x2)/(y1-y2))
-	if y1-y2<0 then angle=angle-math.pi end
-	if angle>0 then angle=angle-2*math.pi end
-	if angle==0 then return 0 end
-	return -angle
+function math.getRot(x1,y1,x2,y2)
+	return math.getRot2(x2-x1,y2-y1)
 end
 
 function math.polygonTrans(x,y,rot,size,v)
