@@ -97,6 +97,9 @@ function ship:sync()
 	self.pushPower = 0
 	self.turnPower = 0
 	self.shieldPower = 0
+	if self.target and self.target.destroyed then
+		self.target = nil
+	end
 end
 
 function ship:slot_update(dt)

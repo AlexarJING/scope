@@ -7,6 +7,8 @@ weapon.bullet = obj.others.bullet
 weapon.range =  300
 weapon.dr = Pi*2
 weapon.rotLimit = Pi/3
+weapon.autoTarget = true
+weapon.autoFire = true
 function weapon:init(ship,slot)
 	self.ship = ship
 	self.slot = slot
@@ -18,11 +20,12 @@ function weapon:init(ship,slot)
 end
 
 function weapon:findTarget()
+	if not self.autoTarget then return end
+	if self.ship.target then self.target = self.ship.target end
 	if self.target and self.target.destroyed then self.target = nil end
-	if self.target and math.getDistance(self.target.x,self.target.y,self.x,self.y)<self.range then
+	if self.target and math.getDistance(self.target.x,self.target.y,self.x,self.y)>self.range then
 		self.target = nil
 	end
-	--if self.target then return end
     self.targets = {}
     local callback = function(fixture)
     	local obj = fixture:getUserData()
@@ -71,7 +74,9 @@ end
 
 function weapon:checkFire(dt)
 	self.fire_timer = self.fire_timer - dt
-	if self.fire_timer<0 and self.target then
+	if self.fire_timer<0 and 
+		(self.target and self.autoFire) or 
+		(not self.autoFire and self.ship.openFire) then
 		self.fire_timer = self.fire_cd
 		self.ship.heat = self.ship.heat + self.heat
 		self.ship:check_overheat()
@@ -94,10 +99,8 @@ function weapon:draw()
 		local target = self.target
 		love.graphics.push()
 		love.graphics.rotate(-self.ship.angle)
-		love.graphics.translate(-self.x, -self.y)
-		
+		love.graphics.translate(-self.x, -self.y)		
 		love.graphics.translate(target.x, target.y)
-		--love.graphics.rotate(target.angle)
 		love.graphics.setColor(255, 0, 0, 255)
 		love.graphics.line(-self.scale,0,self.scale,0)
 		love.graphics.line(0,-self.scale,0,self.scale)

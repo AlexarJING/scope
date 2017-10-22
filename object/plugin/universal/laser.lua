@@ -2,13 +2,16 @@ local laser = class("laser",obj.plugin.base)
 
 laser.heat = 15
 laser.width = 10
-laser.range = 300
+laser.range = 1000
 laser.stype = "universal"
 laser.damage = 1
 laser.damage_type = "energy"
+laser.chargeTime = 1
+laser.last = 0.5
 function laser:init(...)
 	obj.plugin.base.init(self,...)
 	self.power = 0
+	self.timer = 0
 end
 
 

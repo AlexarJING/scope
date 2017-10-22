@@ -9,3 +9,9 @@
 2017/10/21
 添加自动瞄准武器 chain
 添加自动跟踪武器 missileLancher
+2017/10/22
+添加鼠标主动制导功能 检测在key_core中，表现在radar中，target失效检测在ship.base中
+将普通机炮跟自动机炮合并，以autoFire 和 autoTarget作为标志
+自动机炮/导弹的target将优先ship.target
+计划将武器部分的结构重写，base里将自动制导部分、飞行部分合并。使用“physic”标志来区别是否有实体子弹，否则用射线检测。
+由于实体子弹的属性基本一致，因此将属性写在发射器上，子弹本身写入base中，在初始化时由发射器赋予属性。

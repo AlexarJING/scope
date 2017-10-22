@@ -8,6 +8,7 @@ missile.name = "snake"
 missile.range = 2500
 missile.linearDamping = 2
 missile.angularDamping = 3
+missile.autoTarget = true
 function missile:init(ship,x,y,rotation,scale)
 	self.ship = ship
 	self.team = ship.team
@@ -77,7 +78,13 @@ end
 
 
 function missile:findTarget()
+	if self.ship.target then self.target = self.ship.target end
+	if self.target and math.getDistance(self.target.x,self.target.y,self.x,self.y)>self.range then
+		self.target = nil
+	end
+
 	if self.target and not self.target.destroyed then return end
+
     self.targets = {}
     local callback = function(fixture)
     	local obj = fixture:getUserData()

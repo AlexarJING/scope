@@ -28,6 +28,15 @@ function radar:radardraw()
             end
         end
     end
+
+    if player.target then
+        local target  =player.target
+        love.graphics.push()
+        love.graphics.translate(target.x, target.y)
+        love.graphics.setColor(255, 0, 0, 255)
+        love.graphics.rectangle("line", target.x-target.scale, target.y-target.scale, target.scale*2, target.scale*2)
+        love.graphics.pop()
+    end
 end
 
 return radar

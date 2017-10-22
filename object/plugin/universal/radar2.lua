@@ -24,6 +24,18 @@ function radar:radardraw()
             love.graphics.circle("fill", w()/2+math.sin(angle)*rad, h()/2-math.cos(angle)*rad, 5)
         end
     end
+
+    if player.target then
+        game.cam:draw(function()
+        local target  =player.target
+        love.graphics.push()
+        love.graphics.translate(target.x, target.y)
+        love.graphics.setColor(255, 0, 0, 255)
+        love.graphics.rectangle("line", -target.scale, -target.scale, target.scale*2, target.scale*2)
+        love.graphics.pop()
+        end)
+
+    end
 end
 
 
