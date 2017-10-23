@@ -59,6 +59,7 @@ ship.slot = {
 		{offx = -1, offy = -1, rot = -1/4,enabled = true},
 		{offx = 1, offy = 1, rot = 3/4,enabled = true},
 		{offx = -1, offy = 1, rot = -3/4,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true}
 	},
 	engine = {
 		{offx = 0, offy = 0, rot = 1,enabled = true},
@@ -75,5 +76,6 @@ function ship:init(...)
 	end
 	self:add_plugin(obj.plugin.engine.engine,1)
 	self:add_plugin(obj.plugin.engine.engine,2)
+	self:add_plugin(obj.plugin.universal.radar,5)
 end
 return ship

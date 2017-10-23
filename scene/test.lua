@@ -15,7 +15,7 @@ function scene:draw()
 end
 
 function scene:wheelmoved(x,y)
-	game:setZoom(math.sign(y))
+	game.hud:setZoom(math.sign(y))
 end
 
 return scene

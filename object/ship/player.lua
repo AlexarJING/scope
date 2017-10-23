@@ -1,4 +1,4 @@
-local ship = class("ship",obj.ship.base)
+local ship = class("player_ship",obj.ship.base)
 
 ship.slot = {
 	core = {
@@ -23,13 +23,13 @@ function ship:init(...)
 	self:resetSlots()
 	--self:add_plugin(obj.plugin.universal.weapon,1)
 	--self:add_plugin(obj.plugin.universal.weapon,2)
-	--self:add_plugin(obj.plugin.universal.chain,3)
+	self:add_plugin(obj.plugin.universal.weapon,3)
 	self:add_plugin(obj.plugin.core.key_core,1)
 	self:add_plugin(obj.plugin.engine.engine,1)
 	self:add_plugin(obj.plugin.engine.engine,2)
 	self:add_plugin(obj.plugin.universal.shield,4)
 	self:add_plugin(obj.plugin.universal.radar2,5)
-	self:add_plugin(obj.plugin.universal.missileLancher,6)
+	--self:add_plugin(obj.plugin.universal.missileLancher,6)
 end
 
 return ship

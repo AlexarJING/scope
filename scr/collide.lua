@@ -7,9 +7,15 @@ local function begin(a,b,coll)
 		coll:setEnabled(false)
 		return
 	end
-	if objA.tag == "bullet" and objB.tag == "ship" then
+	if objA.tag == "bullet" and objB.tag == "bullet" then
 		objA:destroy()
-		objB:damage(objA.damage_point,objA.damage_type)
+		objA:destroy()
+	end
+
+	if objA.tag == "bullet" and objB.tag == "ship" then
+		objA:hit(objB)
+		--objA:destroy()
+		--objB:damage(objA.damage_point,objA.damage_type)
 	end 
 end
 

@@ -3,16 +3,31 @@ radar.cover = 0.4
 radar.heat = 5
 radar.pname = "eagle eyes"
 radar.stype = "universal"
+radar.isSensor = true
 radar.radius = 5000
+local instant
 function radar:init(ship,slot)
 	self.ship = ship
 	self.slot = slot
-	self.name = radar.pname
-	game.hud.drawRadar = self.radardraw
+	self.name = radar.pname 
+    instant = self   
+end
+
+
+function radar:update(dt)
+    if self.ship == game.player then
+        game.hud.radar = self
+    else
+        return
+    end
+    self.x = self.ship.x
+    self.y = self.ship.y
+    obj.plugin.base.update(self,dt)
+    self:findTarget()
 end
 
 function radar:radardraw()
-	local player = self.player
+	local player = game.player
     for i,s in ipairs(game.enemies) do
         local kx,ky=(s.x-player.x)/(0.5*w()/game.cam.scale),(s.y-player.y)/(0.5*h()/game.cam.scale)
         if math.abs(kx)>1 or math.abs(ky)>1 then -- 在当前视野范围外
@@ -37,6 +52,42 @@ function radar:radardraw()
         love.graphics.rectangle("line", target.x-target.scale, target.y-target.scale, target.scale*2, target.scale*2)
         love.graphics.pop()
     end
+end
+
+
+
+function radar:findTarget()
+    self.target = self.ship.target
+    local dist
+    if self.target then 
+        if self.target.destroyed then 
+            self.target = nil 
+        else
+            dist = math.getDistance(self.target.x,self.target.y,self.x,self.y)
+            if dist>self.radius then
+                self.target = nil
+            end
+        end
+    end
+    if self.target then
+        self.targets = {{obj = self.target, dist = dist ,ttype = "ship"}}
+        return
+    end
+
+    self.targets = {}
+    local callback = function(fixture)
+        local obj = fixture:getUserData()
+        if obj.team ~= self.ship.team and not obj.destroyed then          
+            local dist = math.getDistance(self.x,self.y,obj.x,obj.y)
+            if dist<self.radius then
+                table.insert(self.targets,{obj = obj,dist = dist , ttype = obj.tag})
+            end
+        end
+        return true
+    end
+    game.world:queryBoundingBox( self.x-self.radius, self.y-self.radius, 
+        self.x+self.radius, self.y+self.radius, callback )
+    table.sort(self.targets,function(a,b) return a.dist<b.dist end)
 end
 
 return radar

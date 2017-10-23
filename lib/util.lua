@@ -73,8 +73,8 @@ function math.axisRot(x,y,rot)
 end
 
 function math.axisRot_P(x,y,x1,y1,rot)
-  x=x -x1
-  y=y- y1
+  x=x - x1
+  y=y - y1
   local xx=math.cos(rot)*x-math.sin(rot)*y
   local yy=math.cos(rot)*y+math.sin(rot)*x
   return xx+x1,yy+y1

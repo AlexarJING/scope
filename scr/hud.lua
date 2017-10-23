@@ -17,6 +17,9 @@ function hud:init()
         checked = false}
     end
     self.messageVisible = false
+    self.zoom = 1
+    game.cam:setScale(self.zoom)
+    
 end
 
 function hud:update()
@@ -31,6 +34,10 @@ function hud:draw()
     self:drawRadar()
     self:drawState()
     self:drawFoeState()
+    if self.radar then
+        self.radar:radardraw()
+    end
+    --love.graphics.print(tostring(game.player.openFire), 10,10)
 end
 
 function hud:updateSlot()
@@ -117,6 +124,19 @@ function hud:showMessage()
     suit.Button("ignore",w()/8 + self.scale*1.4 ,h()/6+h()*2/3+2,self.scale,self.scale/2)
     suit.Button("delete",w()/8 + self.scale*2.7 ,h()/6+h()*2/3+2,self.scale,self.scale/2)
     suit.Button("cancel",w()/8 + self.scale*4 ,h()/6+h()*2/3+2,self.scale,self.scale/2)
+end
+
+function hud:setZoom(d)
+    if not self.radar then return end
+    local last = self.zoom
+    self.zoom = self.zoom + d/10
+    if self.zoom < 0.1 then self.zoom = 0.1 end
+    
+    if h()/2/self.zoom > self.radar.radius then
+        self.zoom = last
+    end
+    game.cam:setScale(self.zoom)
+    game.cam.x,game.cam.y = self.player.x,self.player.y
 end
 
 return hud

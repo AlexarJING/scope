@@ -15,3 +15,43 @@
 自动机炮/导弹的target将优先ship.target
 计划将武器部分的结构重写，base里将自动制导部分、飞行部分合并。使用“physic”标志来区别是否有实体子弹，否则用射线检测。
 由于实体子弹的属性基本一致，因此将属性写在发射器上，子弹本身写入base中，在初始化时由发射器赋予属性。
+2017/10/23
+统一了所有武器发射器，为weapon,武器投射物统一为实体投射物bullet和能量射线laser
+投射物的属性在weapon的属性体现，因此在weapon基础上衍生就可直接产生所有武器，无需单独设置投射物。
+--------------------
+以下为武器的所有属性。未来有可能扩充其他投射物单体。
+weapon.pname = "hell fire"
+weapon.fire_cd = 0.1 --发射间隔
+weapon.chargeTime = 3 --充能时间
+weapon.heat = 0 --单次发射的热量
+weapon.fire_count = 1 --单次发射的子弹量
+weapon.fire_offset = 0 --子弹的旋转偏移（可模拟子弹不精确，或随机子弹角度）
+weapon.autoFire = true --自动开火
+weapon.autoFireRange =  1300 --自动开火范围
+weapon.autoTarget = true --自动寻的(武器自转)
+weapon.target_type = "ship" --寻的类型 ship/bullet/all
+weapon.rotSpeed = Pi--旋转速度 弧度/s
+weapon.rotLimit = Pi/2 --单侧旋转角度限制
+weapon.bullet = obj.others.laser --放出子弹类型 bullet/missile/decoy(分散放出型，诱使武器自爆)
+weapon.hp = 1
+weapon.scale = 10 --子弹碰撞大小
+weapon.activeTime = 0.2 --子弹存活时间
+weapon.activeRange = 500 --有效射程
+weapon.tracing = true --跟踪能力
+weapon.initVelocity = 0 --发射初速度
+weapon.pushPower = 200 --自带推力
+weapon.turnPower = 100 --自带扭力
+weapon.linearDamping = 3 --线性速度衰减
+weapon.angularDamping = 3 --旋转速度限制，提高力量的同时提高限制，提升灵敏程度，不至于跳
+weapon.damage_type = "structure"--伤害类型 structure/energy/quantum(质子伤害，真实伤害，无差别的伤害)
+weapon.damage_point = 5
+weapon.explosion_range = 0 --碰撞后伤害半径如为0则单体伤害
+weapon.through = 0 --碰撞后穿透 层数3 0为不穿透
+weapon.drawTarget = true 
+weapon.drawRange = true
+------------------------------------------------------
+现在将武器自动寻的的数据源绑定在雷达上。玩家自动获取，ai需要手动调用api.
+（但是这样的代价是每帧需要多付出很多的范围检测，是否值得？）
+radar对hud的绑定方式改变，radar成为hud的挂载。去调用radar的draw函数。
+武器打击现在有对象限制，ship/bullet/all
+现在激光武器子弹是单独的实体了。
