@@ -1,13 +1,7 @@
-t1 = {}
-str = "t1"
-function un_ser(str)
-    str = "return " .. str
-    local fun = loadstring(str)
-    return fun()
-end
-path = string.sub(...,1,-5)
+--require "scr/randomName"
 __TESTING = true
 --__CONSOLE = true
+local path = "/"
 require (path.."lib/util")
 class=require (path.."lib/middleclass")
 gamestate= require (path.."lib/gamestate")

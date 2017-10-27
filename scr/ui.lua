@@ -19,7 +19,7 @@ function ui:init(hud)
 	self.action = {x = 20+ unit*35,y = h()- 10 - 8* unit, w = 81*unit , h = 8*unit , bw = 6*unit,bh = 6*unit }
 
 	self.miniMap = {x = w()-22*unit-10,y = h()-10-22*unit,w = 22*unit,h = 22*unit}
-
+	self.shop = {x = w()/2-40*unit, y = h()/2-30*unit, w = 80*unit, h = 45*unit, title = "xxxx trading center",bw = unit*10,bh = unit*4}
 	return self
 end
 
@@ -37,12 +37,17 @@ function ui:update()
 	end
 	local mini = self.miniMap
 	suit.Panel(mini.x,mini.y,mini.w,mini.h)
+
+	local shop = self.shop
+	suit.Panel(shop.x,shop.y,shop.w,shop.h)
+	suit.Button("buy",shop.x+shop.w - shop.bw - unit,shop.y+shop.h,shop.bw,shop.bh)
 end
 
 function ui:draw()
 	suit.draw()
 	self:drawState()
 	self:drawMini()
+	self:drawShop()
 end
 
 
@@ -123,6 +128,20 @@ function ui:drawMini()
 	end
 
 	love.graphics.pop()
+end
+
+function ui:drawShop()
+	local shop = self.shop
+	love.graphics.setColor(255, 255, 255, 255)
+	local fh = love.graphics.getFont():getHeight()
+	local fw = love.graphics.getFont():getWidth(shop.title)
+	love.graphics.print(shop.title, shop.x + unit*5, shop.y - fh - unit)
+	love.graphics.line(shop.x + unit*3,shop.y,
+		shop.x + unit*5,shop.y - fh - 2*unit,
+		shop.x + unit*5 + fw, shop.y - fh - 2*unit,
+		shop.x + unit*7 + fw, shop.y
+		)
+
 end
 
 

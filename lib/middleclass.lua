@@ -97,8 +97,8 @@ end
 local Object = _createClass("Object", nil)
 
 Object.static.__metamethods = { '__add', '__call', '__concat', '__div', '__ipairs', '__le',
-                                '__len', '__lt', '__mod', '__mul', '__pairs', '__pow', '__sub',
-                                '__tostring', '__unm'}
+                                '__len', '__lt', '__mod', '__mul', '__pairs', '__pow', '__sub'
+                                , '__unm'}
 
 function Object.static:allocate()
   assert(type(self) == 'table', "Make sure that you are using 'Class:allocate' instead of 'Class.allocate'")
@@ -155,7 +155,7 @@ end
 
 function Object:init() end
 
-function Object:__tostring() return "instance of " .. tostring(self.class) end
+--function Object:__tostring() return "instance of " .. tostring(self.class) end
 
 function Object:isInstanceOf(aClass)
   return type(self)                == 'table' and
