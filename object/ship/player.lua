@@ -1,10 +1,14 @@
 local ship = class("player_ship",obj.ship.base)
 
 ship.slot = {
-	core = {
-		{offx = 0,offy = 0,rot = 0,enabled = true}
+	system = {
+		{offx = 0,offy = 0,rot = 0,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true},	
 	},
-	universal = {
+	battle = {
 		{offx = 0.3, offy = -0.3, rot = 1/24,enabled = true},
 		{offx = -0.3, offy = -0.3, rot = -1/24,enabled = true},
 		{offx = 0, offy = -0.8, rot = 0,enabled = true},
@@ -23,13 +27,14 @@ function ship:init(...)
 	self:resetSlots()
 	--self:add_plugin(obj.plugin.universal.weapon,1)
 	--self:add_plugin(obj.plugin.universal.weapon,2)
-	self:add_plugin(obj.plugin.universal.weapon,3)
-	self:add_plugin(obj.plugin.core.key_core,1)
-	self:add_plugin(obj.plugin.engine.engine,1)
-	self:add_plugin(obj.plugin.engine.engine,2)
-	self:add_plugin(obj.plugin.universal.shield,4)
-	self:add_plugin(obj.plugin.universal.radar2,5)
-	--self:add_plugin(obj.plugin.universal.missileLancher,6)
+	--self:add_plugin(obj.plugin.universal.weapon,3)
+	--self:add_plugin(obj.plugin.core.key_core,1)
+	self:add_plugin(obj.module.engine.engine,1)
+	self:add_plugin(obj.module.engine.engine,2)
+	self:add_plugin(obj.module.system.input,1)
+	self:add_plugin(obj.module.system.output,2)
+	self:add_plugin(obj.module.system.visible_radar,3)
+	self:add_plugin(obj.module.system.energy_radar,4)
 end
 
 return ship

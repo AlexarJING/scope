@@ -932,6 +932,35 @@ function love.graphics.setStencil(func)
 	end
 end
 
+local triangleBuffer = {}
+local vertsBuffer = {}
+function love.graphics.outlinePolygon(verts,scale)
+	if not vertsBuffer[tostring(verts)..scale] then
+		local scaled = {}
+		for i,v in ipairs(verts) do
+			scaled[i] = v*scale
+		end
+		vertsBuffer[tostring(verts)..scale] = scaled
+	end
+
+	verts = vertsBuffer[tostring(verts)..scale]
+	local r, g, b, a = love.graphics.getColor()
+	love.graphics.setColor(r, g, b, a/3)
+	if love.math.isConvex(verts) then 
+		love.graphics.polygon("fill", verts)
+	else
+		triangleBuffer[verts] = triangleBuffer[verts] or love.math.triangulate(verts)		
+		for i,tri in ipairs(triangleBuffer[verts]) do
+			love.graphics.polygon("fill", tri)
+		end
+	end
+	love.graphics.setColor(r, g, b, a)
+	love.graphics.setLineWidth(3)
+	love.graphics.line( verts)
+	love.graphics.polygon("line", verts)
+end
+
+
 collision = {}
 
 function collision.newBox(x,y,w,h,t,density)

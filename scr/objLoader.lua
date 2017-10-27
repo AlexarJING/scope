@@ -11,12 +11,14 @@ obj = {}
 
 obj.others = loadDir("object/others/")
 
-obj.plugin = {}
-obj.plugin.base = require "object/plugin/base"
-obj.plugin.core = loadDir("object/plugin/core/")
-obj.plugin.engine = loadDir("object/plugin/engine/")
-obj.plugin.universal = loadDir("object/plugin/universal/")
+obj.module = {}
+obj.module.base = require "object/module/base"
+obj.module.system = loadDir("object/module/system/")
+obj.module.engine = loadDir("object/module/engine/")
+--obj.module.battle = loadDir("object/module/battle/")
 
 obj.ship = {}
 obj.ship.base = require "object/ship/base"
-loadDir("object/ship/",obj.ship)
+obj.ship.player = require "object/ship/player"
+obj.ship.npc = require "object/ship/npc"
+--loadDir("object/ship/",obj.ship)

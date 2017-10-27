@@ -37,6 +37,9 @@ weapon.through = 0 --碰撞后穿透 层数3 0为不穿透
 weapon.drawTarget = true 
 weapon.drawRange = true
 
+weapon.verts = {
+	
+}
 function weapon:init(...)
 	obj.plugin.base.init(self,...)
 	self.fire_timer = 0
@@ -64,11 +67,23 @@ function weapon:sync()
 end
 
 function weapon:getRadar()
-	for _,slot in ipairs(self.ship.slot.universal) do
-		if slot.plugin and slot.plugin.isSensor then
-			self.radar = slot.plugin
+	if not self.detection or not self.detection.enabled then
+		for _,slot in ipairs(self.ship.slot.universal) do
+			if slot.plugin and slot.plugin.isSensor and slot.plugin.enabled then
+				self.detection = slot.plugin
+			end
 		end
 	end
+	if not self.detection then self:destroy() end
+
+	if not self.detection or not self.detection.enabled then
+		for _,slot in ipairs(self.ship.slot.universal) do
+			if slot.plugin and slot.plugin.isSensor and slot.plugin.enabled then
+				self.detection = slot.plugin
+			end
+		end
+	end
+	if not self.detection then self:destroy() end
 end
 
 function weapon:getTarget()
@@ -100,7 +115,6 @@ function weapon:fireControl(dt)
 			if self.charge_timer<=0 then
 				self.fire_timer = self.fire_cd
 				self.ship.heat = self.ship.heat + self.heat
-				self.ship:check_overheat()
 				for i = 1,self.fire_count do
 					self.bullet(self,self.x,self.y,
 						self.angle-love.math.random()*self.fire_offset*2+self.fire_offset)

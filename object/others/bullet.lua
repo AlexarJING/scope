@@ -59,8 +59,12 @@ function bullet:draw()
 end
 
 function bullet:sync()
-	self.x,self.y = self.body:getPosition()
-	self.angle = self.body:getAngle()
+	--self.x,self.y = self.body:getPosition()
+	--self.angle = self.body:getAngle()
+	self.radar:getPosition(self)
+	if self.target.destroyed then
+		self.target = self.weapon.target
+	end
 end
 
 function bullet:destroy()
@@ -109,11 +113,8 @@ end
 function bullet:traceTarget()
     --self.target = self.weapon.target
     self:push()
-    if self.target and self.target.destroyed then self.target = nil end
-    if not self.target then 
-    	self.target = self.weapon.target
-    	if not self.target then return end
-    end
+    --if self.target and self.target.destroyed then self.target = nil end
+    if not self.target then return end
     local tx,ty = self.target.x,self.target.y
 	local rot = math.unitAngle(math.getRot(self.x,self.y,tx,ty))
 	self.angle = math.unitAngle(self.angle)

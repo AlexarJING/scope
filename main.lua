@@ -1,3 +1,10 @@
+t1 = {}
+str = "t1"
+function un_ser(str)
+    str = "return " .. str
+    local fun = loadstring(str)
+    return fun()
+end
 path = string.sub(...,1,-5)
 __TESTING = true
 --__CONSOLE = true

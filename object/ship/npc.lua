@@ -2,10 +2,12 @@ local base = obj.ship.base
 local ship = class("ai_ship",base)
 
 ship.slot = {
-	core = {
+	system = {
+		{offx = 0,offy = 0,rot = 0,enabled = true},
+		{offx = 0,offy = 0,rot = 0,enabled = true},
 		{offx = 0,offy = 0,rot = 0,enabled = true}
 	},
-	universal = {	
+	battle = {	
 		{offx = 0, offy = -0.8, rot = 0,enabled = true},
 		{offx = 0, offy = 0.8, rot = 0,enabled = true},
 	},
@@ -17,9 +19,9 @@ ship.slot = {
 function ship:init(...)
 	base.init(self,...)
 	self:resetSlots()
-	self:add_plugin(obj.plugin.core.ai_core,1)
-	self:add_plugin(obj.plugin.engine.engine,1)
-	self:add_plugin(obj.plugin.universal.weapon,1)
-	self:add_plugin(obj.plugin.universal.radar,2)
+	self:add_plugin(obj.module.system.ai,1)
+	self:add_plugin(obj.module.engine.engine,1)
+	--self:add_plugin(obj.plugin.universal.weapon,1)
+	--self:add_plugin(obj.plugin.universal.radar,2)
 end
 return ship
