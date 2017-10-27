@@ -15,7 +15,7 @@ obj.module = {}
 obj.module.base = require "object/module/base"
 obj.module.system = loadDir("object/module/system/")
 obj.module.engine = loadDir("object/module/engine/")
---obj.module.battle = loadDir("object/module/battle/")
+obj.module.battle = loadDir("object/module/battle/")
 
 obj.ship = {}
 obj.ship.base = require "object/ship/base"

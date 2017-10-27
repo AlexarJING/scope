@@ -20,7 +20,7 @@ function frag:init(x,y,rot,canvas)
 	self.rot=rot
 	self:separate()
 	self:setSpeed()
-	table.insert(game.objects,self)
+	game:addObject(self)
 end
 
 function frag:separate()

@@ -6,7 +6,7 @@ local theme = {}
 theme.cornerRadius = 4
 
 theme.color = {
-	normal   = {bg = { 66, 66, 66}, fg = {188,188,188}},
+	normal   = {bg = { 66, 66, 166,50}, fg = {188,188,188}},
 	hovered  = {bg = { 50,153,187}, fg = {255,255,255}},
 	active   = {bg = {255,153,  0}, fg = {225,225,225}}
 }
@@ -28,6 +28,8 @@ function theme.drawBox(x,y,w,h, colors, cornerRadius)
 
 	love.graphics.setColor(colors.bg)
 	love.graphics.rectangle('fill', x,y, w,h, cornerRadius)
+	love.graphics.setColor(colors.fg)
+	love.graphics.rectangle('line', x,y, w,h, cornerRadius)
 end
 
 function theme.getVerticalOffsetForAlign(valign, font, h)

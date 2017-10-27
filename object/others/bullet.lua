@@ -1,5 +1,8 @@
 local bullet = class("bullet")
 bullet.tag = "bullet"
+bullet.verts = {
+	0,-0.5,0.3,0.3,-0.3,0.3
+}
 
 function bullet:init(weapon,x,y,angle)
 	self.weapon = weapon
@@ -24,7 +27,7 @@ function bullet:init(weapon,x,y,angle)
 	self.body:setLinearDamping(weapon.linearDamping)
 	self.through = weapon.through
 	self.target = weapon.target
-	table.insert(game.objects,self)
+	game:addObject(self)
 end
 
 function bullet:update(dt)
@@ -41,28 +44,13 @@ function bullet:update(dt)
 	end
 end
 
-function bullet:draw()
-	if self.weapon.pushPower~=0 then
-		love.graphics.push()
-		love.graphics.translate(self.x, self.y)
-		love.graphics.rotate(self.angle)
-		love.graphics.setColor(255, 255, 255, 255)
-		local scale = self.scale
-		love.graphics.rectangle("fill", -scale/8, -scale/2, scale/4, scale)
-		love.graphics.setColor(255, 0, 0, 255)
-		love.graphics.rectangle("fill", -scale/8, scale/2, scale/4, scale/4)
-		love.graphics.pop()
-	else
-		love.graphics.setColor(255, 255, 255, 255)
-		love.graphics.circle("fill", self.x, self.y, self.scale)
-	end
-end
 
 function bullet:sync()
-	--self.x,self.y = self.body:getPosition()
-	--self.angle = self.body:getAngle()
-	self.radar:getPosition(self)
-	if self.target.destroyed then
+	self.heat = 0
+	self.x,self.y = self.body:getPosition()
+	self.angle = self.body:getAngle()
+	--self.radar:getPosition(self)
+	if self.target and self.target.destroyed then
 		self.target = self.weapon.target
 	end
 end
@@ -88,26 +76,20 @@ function bullet:inScreen()
 	return inRect(self.x,self.y,game.cam:getVisible(2))
 end
 
-function bullet:makePuff()
-	if love.math.random()>0.1 then return end
-	if not self:inScreen() then return end
-	local x,y = math.axisRot(0,0.5*self.scale,self.angle)
-	obj.others.puff(self.x+x,self.y+y)
-end
 
 function bullet:push(a)
 	a = a or 1
 	local dt = love.timer.getDelta()
 	self.body:applyLinearImpulse(a *self.weapon.pushPower*math.sin(self.angle)*dt,
 		-a*self.weapon.pushPower*math.cos(self.angle)*dt)
-	self:makePuff()
+	self.heat = self.heat * self.weapon.heat_generate* love.timer.getDelta()
 end
 
 function bullet:turn(a)
 	a = a or 1
 	local dt = love.timer.getDelta()
 	self.body:applyAngularImpulse(-a*self.weapon.turnPower*dt)
-	self:makePuff()
+	self.heat = self.heat * self.weapon.heat_generate* love.timer.getDelta()
 end
 
 function bullet:traceTarget()

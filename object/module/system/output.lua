@@ -1,4 +1,4 @@
-local mod = class("ui",obj.module.base)
+local mod = class("graphic",obj.module.base)
 mod.heat_produce = 0
 mod.energy_occupy = 0
 mod.mod_name = "user interface"
@@ -37,6 +37,7 @@ function mod:init(ship,slot)
 	self.energy_spot_mesh = circle(20,0)
 	self.fadeout = require("scr/fadeout"):init()
 	game.hud = self
+	self.ui = require("scr/ui"):init(self)
 end
 
 function mod:update(dt)
@@ -44,6 +45,7 @@ function mod:update(dt)
 	game.hud = self
 	self.cam:followTarget(self.ship,0,10)
 	self.fadeout:update(dt)
+	self.ui:update()
 end
 
 function mod:draw()
@@ -58,7 +60,7 @@ function mod:draw()
 	self:drawEnergyWorld()
 	self:drawFireCtrl()
 	--self:drawAnalyser()
-	self:drawUI()
+	self.ui:draw()
 end
 
 function mod:drawGrid()
@@ -163,17 +165,18 @@ end
 function mod:drawFireCtrl()
 	local world = self.ship:getData("fire_control")
 	if not world then return end
-	self.cam:draw(function()	
+	self.cam:draw(function()
+	love.graphics.setLineWidth(1)	
 	for i , data in ipairs(world) do
 		love.graphics.setColor(self.color_style.fire_control)
 		love.graphics.push()
 		love.graphics.translate(data.x, data.y)
-		love.graphics.rotate(angle)
-		love.graphics.rectangle("line", -spot_size, -spot_size, spot_size*2, spot_size*2)
+		love.graphics.rotate(data.angle)
+		love.graphics.rectangle("line", -spot_size/2, -spot_size/2, spot_size, spot_size)
 		love.graphics.pop()
 		love.graphics.push()
 		love.graphics.translate(data.tx, data.ty)
-		love.graphics.circle("line", 0, 0,spot_size)
+		love.graphics.circle("line", 0, 0,spot_size/2)
 		love.graphics.pop()
 		love.graphics.line(data.x, data.y, data.tx, data.ty)
 	end
@@ -215,7 +218,7 @@ function mod:setZoom(d)
 end
 
 function mod:drawUI()
-	suit.draw()
+	
 end
 
 function mod:drawState()

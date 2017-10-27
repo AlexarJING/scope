@@ -1,8 +1,8 @@
-local shield = class("shield",obj.plugin.base)
+local shield = class("shield",obj.module.base)
 shield.shield_coverage = 0.4
 shield.heat = 20
-shield.pname = "Hercules"
-shield.stype = "universal"
+shield.mod_name = "Hercules"
+shield.mod_type = "battle"
 shield.power = 60
 function shield:init(ship,slot)
 	self.ship = ship

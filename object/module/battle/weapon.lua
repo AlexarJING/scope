@@ -1,27 +1,28 @@
-local weapon = class("weapon",obj.plugin.base)
-weapon.stype = "universal"
-weapon.pname = "hell fire"
+local weapon = class("weapon",obj.module.base)
+weapon.mod_type = "battle"
+weapon.mod_name = "hell fire"
 
 weapon.fire_cd = 0.1 --发射间隔
-weapon.chargeTime = 3 --充能时间
+weapon.chargeTime = 0 --充能时间
 weapon.heat = 0 --单次发射的热量
+weapon.heat_generate = 1 --动力武器产热
 
 weapon.fire_count = 1 --单次发射的子弹量
 weapon.fire_offset = 0 --子弹的旋转偏移（可模拟子弹不精确，或随机子弹角度）
 
-weapon.autoFire = true --自动开火
+weapon.autoFire = false --自动开火
 weapon.autoFireRange =  1300 --自动开火范围
 
-weapon.autoTarget = true --自动寻的(武器自转)
+weapon.autoTarget = false --自动寻的(武器自转)
 weapon.target_type = "ship" --寻的类型 ship/bullet/all
 weapon.rotSpeed = Pi--旋转速度 弧度/s
 weapon.rotLimit = Pi/2 --单侧旋转角度限制
 
 
-weapon.bullet = obj.others.laser --放出子弹类型 bullet/missile/decoy(分散放出型，诱使武器自爆)
+weapon.bullet = obj.others.bullet --放出子弹类型 bullet/missile/decoy(分散放出型，诱使武器自爆)
 weapon.hp = 1
 weapon.scale = 10 --子弹碰撞大小
-weapon.activeTime = 0.2 --子弹存活时间
+weapon.activeTime = 1 --子弹存活时间
 weapon.activeRange = 500 --有效射程
 weapon.tracing = true --跟踪能力
 weapon.initVelocity = 0 --发射初速度
@@ -41,7 +42,7 @@ weapon.verts = {
 	
 }
 function weapon:init(...)
-	obj.plugin.base.init(self,...)
+	obj.module.base.init(self,...)
 	self.fire_timer = 0
 	self.charge_timer = self.chargeTime
 	self.rot = 0
@@ -66,25 +67,7 @@ function weapon:sync()
 	self.angle = self.ship.angle+self.slot.rot*Pi + self.rot
 end
 
-function weapon:getRadar()
-	if not self.detection or not self.detection.enabled then
-		for _,slot in ipairs(self.ship.slot.universal) do
-			if slot.plugin and slot.plugin.isSensor and slot.plugin.enabled then
-				self.detection = slot.plugin
-			end
-		end
-	end
-	if not self.detection then self:destroy() end
 
-	if not self.detection or not self.detection.enabled then
-		for _,slot in ipairs(self.ship.slot.universal) do
-			if slot.plugin and slot.plugin.isSensor and slot.plugin.enabled then
-				self.detection = slot.plugin
-			end
-		end
-	end
-	if not self.detection then self:destroy() end
-end
 
 function weapon:getTarget()
 	if not self.radar then self:getRadar() end
@@ -110,7 +93,7 @@ function weapon:fireControl(dt)
 	self.fire_timer = self.fire_timer - dt
 	if self.fire_timer<0 and not self.ship.overheat and 
 		((self.target and self.autoFire) or 
-		(not self.autoFire and self.ship.openFire))  then
+		(not self.autoFire and self.ship.data.action.fire))  then
 			self.charge_timer =  self.charge_timer - dt
 			if self.charge_timer<=0 then
 				self.fire_timer = self.fire_cd

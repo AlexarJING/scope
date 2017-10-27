@@ -3,8 +3,8 @@ radar.coverage = 1
 radar.heat = 5
 radar.mod_name = "firectrl radar"
 radar.mod_type = "system"
-radar.radius = 1000
-radar.predict_time = 1
+radar.radius = 2000
+radar.predict_time = 0.3
 function radar:update(dt)
     obj.module.base.update(self,dt)
     self:findTarget()
@@ -18,20 +18,21 @@ function radar:findTarget()
         if not obj.destroyed then          
             local dist = math.getDistance(x,y,obj.x,obj.y)
             if dist<self.radius then
-                local vx,vy = self.ship.body:getLinearVelocity()
+                local vx,vy = obj.body:getLinearVelocity()
                 table.insert(self.targets,{
-                    x = obj.x, y = obj.y,
+                    x = obj.x, y = obj.y,angle = obj.angle,
                     vx = vx, vy = vy,
-                    tx = vx*self.predict_time , ty = vy*self.predict_time
+                    tx = vx*self.predict_time + obj.x, ty = vy*self.predict_time+obj.y
                 })
             end
         end
         return true
     end
-    game.world:queryBoundingBox( self.x-self.radius, self.y-self.radius, 
-        self.x+self.radius, self.y+self.radius, callback )
-    table.sort(self.targets,function(a,b) return a.dist<b.dist end)
+    game.world:queryBoundingBox( x-self.radius, y-self.radius, 
+        x+self.radius, y+self.radius, callback )
+    --table.sort(self.targets,function(a,b) return a.dist<b.dist end)
     self.ship.data.fire_control = self.targets
+    self.ship.data.fire_ctrl_radius = self.radius
 end
 
 return radar
