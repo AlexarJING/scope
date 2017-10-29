@@ -16,7 +16,7 @@ function bullet:init(weapon,x,y,angle)
 	self.hp = weapon.hp
 	self.shape = love.physics.newCircleShape(0,0,self.scale)
 	self.body = love.physics.newBody(game.world, x, y, "dynamic")
-	self.fixture = love.physics.newFixture(self.body, self.shape,0.1)
+	self.fixture = love.physics.newFixture(self.body, self.shape,0.01)
 	local vx,vy = self.ship.body:getLinearVelocity()
 	self.body:setLinearVelocity(weapon.initVelocity*math.sin(angle)+vx,
 		-weapon.initVelocity*math.cos(angle)+vy)
@@ -58,11 +58,12 @@ end
 function bullet:destroy()
 	self.destroyed = true
 	self.body:destroy()
+	--[[
 	if self.weapon.explosion_range~=0 then
 		obj.others.explosion(self.x,self.y,self.weapon.explosion_range)
 	elseif self.weapon.pushPower~=0 then
 		obj.others.explosion(self.x,self.y,self.scale/2)
-	end
+	end]]
 end
 
 
@@ -97,7 +98,7 @@ function bullet:traceTarget()
     self:push()
     --if self.target and self.target.destroyed then self.target = nil end
     if not self.target then return end
-    local tx,ty = self.target.x,self.target.y
+    local tx,ty = self.target.tx or self.target.x,self.target.ty or self.target.y
 	local rot = math.unitAngle(math.getRot(self.x,self.y,tx,ty))
 	self.angle = math.unitAngle(self.angle)
     if rot>self.angle and math.abs(rot - self.angle)< math.pi or

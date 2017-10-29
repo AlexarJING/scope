@@ -37,6 +37,7 @@ function hud:draw()
     if self.radar then
         self.radar:radardraw()
     end
+    self:drawTarget()
     --love.graphics.print(tostring(game.player.openFire), 10,10)
 end
 
@@ -108,6 +109,19 @@ function hud:drawState()
     love.graphics.print(string.format("%3d/%3d",player.shield,player.shield_max), self.scale*4.5, self.scale*0.53)
     love.graphics.print(string.format("%3d/%3d",player.heat,player.heat_max), self.scale*4.5, self.scale*0.83)
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 local message = 
 [[ this is a test mission, ok?

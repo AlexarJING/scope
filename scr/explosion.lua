@@ -8,19 +8,15 @@ end
 function exp:add(x,y,angle,verts,scale,color)
 
 	local verts = math.polygonTrans(x,y,angle,scale,verts)
-	for i = 1, #verts/2-2, 2 do
+	for i = 1, #verts,2 do
 		local line = {
-			verts[i*2-1],verts[i*2],
-			verts[i*2+1],verts[i*2+2],
+			verts[i],verts[i+1],
+			verts[i+2] or verts[1],verts[i+3] or verts[2],
 		}
-		local cx = love.math.random(verts[i*2-1],verts[i*2+1])
-		local cy = love.math.random(verts[i*2] , verts[i*2+2])
-		local vx,vy = love.math.random(-100,100),love.math.random(-100,100)
-		local vr = love.math.random(-100,100)
+		local vx,vy = love.math.random(-50,50),love.math.random(-50,50)
 		table.insert(self.lines,{
 			line = line,
-			cx = cx,cy = cy,
-			vx = vx,vy = vy,vr = vr,
+			vx = vx,vy = vy,
 			life = lifeMax, color = color
 			})
 	end
@@ -34,11 +30,8 @@ function exp:update(dt)
 		obj.life = obj.life - dt
 		if obj.life > 0 then
 			local line = obj.line
-			line[1],line[2] = line[1] + obj.vx, line[2]+ obj.vy
-			line[3],line[4] = line[3] + obj.vx, line[4]+ obj.vy
-			obj.cx,obj.cy = obj.cx + obj.vx,obj.cy + obj.vy
-			line[1],line[2] = math.axisRot_P(line[1],line[2],obj.cx,obj.cy,obj.vr*dt)
-			line[3],line[4] = math.axisRot_P(line[3],line[4],obj.cx,obj.cy,obj.vr*dt)
+			line[1],line[2] = line[1] + obj.vx*dt, line[2]+ obj.vy*dt
+			line[3],line[4] = line[3] + obj.vx*dt, line[4]+ obj.vy*dt
 			table.insert(newline,obj)
 		end
 	end

@@ -21,9 +21,9 @@ function radar:findTarget()
             if dist<self.radius then
                 table.insert(self.targets,{
                     ox = obj.ox,oy = obj.oy,x = obj.x, y = obj.y, angle = obj.angle, scale = obj.scale,
-                    dist = dist, azi = math.getRot(x,y,obj.x,obj.y),
+                    dist = dist, azi = math.getRot(x,y,obj.x,obj.y),tag = obj.tag,
                     team = obj.visual_team or obj.team, exhausted = obj.exhausted,
-                    verts = obj.verts
+                    verts = obj.verts,obj = obj
 
                 })
             end

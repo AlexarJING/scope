@@ -21,7 +21,7 @@ function radar:findTarget()
                 table.insert(self.targets,{
                     x = obj.x, y = obj.y, 
                     dist = dist, azi = math.getRot(x,y,obj.x,obj.y),
-                    heat = obj.heat
+                    heat = obj.heat,obj = obj
                 })
             end
         end

@@ -5,7 +5,7 @@ function game:init()
     self.world = love.physics.newWorld(0, 0, false)
     self.world:setCallbacks(collision.begin,collision.leave,collision.pre,collision.post)
     self.objects = {}
-    self.object_index = 0
+    self.object_index = {}
     --self.teams = {}
 end
 
@@ -26,6 +26,8 @@ function game:update(dt)
         obj:update(dt)
         if not obj.destroyed then
             table.insert(newTab,obj)
+        else
+            self.object_index[obj] = nil
         end
     end
     self.objects = newTab
@@ -43,8 +45,7 @@ end
 
 
 function game:addObject(obj)
-    self.object_index = self.object_index + 1
-    obj.object_index = self.object_index
+    self.object_index[obj] = obj
     table.insert(self.objects,obj)
 end
 

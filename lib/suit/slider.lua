@@ -19,7 +19,7 @@ return function(core, info, ...)
 		-- mouse update
 		local mx,my = core:getMousePosition()
 		if opt.vertical then
-			fraction = math.min(1, math.max(0, (y+h - my) / h))
+			fraction = math.min(1, math.max(0, ( my - y) / h))
 		else
 			fraction = math.min(1, math.max(0, (mx - x) / w))
 		end

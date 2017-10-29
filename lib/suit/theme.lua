@@ -10,7 +10,7 @@ theme.color = {
 	hovered  = {bg = { 50,153,187}, fg = {255,255,255}},
 	active   = {bg = {255,153,  0}, fg = {225,225,225}}
 }
-
+theme.quad = love.graphics.newQuad(0, 0, w()-1, h()-1, w(), h())
 
 -- HELPER
 function theme.getColorForState(opt)
@@ -25,11 +25,15 @@ function theme.drawBox(x,y,w,h, colors, cornerRadius)
 	if h < cornerRadius/2 then
 		y,h = y - (cornerRadius - h), cornerRadius/2
 	end
-
+	love.graphics.setBlendMode("replace")
+	theme.quad:setViewport(x,y, w,h)
+	love.graphics.draw(theme.bgTexture,theme.quad,x,y)
 	love.graphics.setColor(colors.bg)
+	love.graphics.setBlendMode("alpha")
 	love.graphics.rectangle('fill', x,y, w,h, cornerRadius)
 	love.graphics.setColor(colors.fg)
 	love.graphics.rectangle('line', x,y, w,h, cornerRadius)
+
 end
 
 function theme.getVerticalOffsetForAlign(valign, font, h)
@@ -98,7 +102,7 @@ function theme.Slider(fraction, opt, x,y,w,h)
 	local r =  math.min(w,h) / 2.1
 	if opt.vertical then
 		x, w = x + w*.25, w*.5
-		xb, yb, wb, hb = x, y+h*(1-fraction), w, h*fraction
+		xb, yb, wb, hb = x, y+h*(fraction), w, h*fraction
 	else
 		y, h = y + h*.25, h*.5
 		xb, yb, wb, hb = x,y, w*fraction, h
@@ -106,16 +110,16 @@ function theme.Slider(fraction, opt, x,y,w,h)
 
 	local c = theme.getColorForState(opt)
 	theme.drawBox(x,y,w,h, c, opt.cornerRadius)
-	theme.drawBox(xb,yb,wb,hb, {bg=c.fg}, opt.cornerRadius)
+	--theme.drawBox(xb,yb,wb,hb, {bg=c.fg,fg=c.fg}, opt.cornerRadius)
 
-	if opt.state ~= nil and opt.state ~= "normal" then
+	--if opt.state ~= nil and opt.state ~= "normal" then
 		love.graphics.setColor((opt.color and opt.color.active or {}).fg or theme.color.active.fg)
 		if opt.vertical then
 			love.graphics.circle('fill', x+wb/2, yb, r)
 		else
 			love.graphics.circle('fill', x+wb, yb+hb/2, r)
 		end
-	end
+	--end
 end
 
 function theme.Input(input, opt, x,y,w,h)

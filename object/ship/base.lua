@@ -35,8 +35,8 @@ function ship:init(team,x,y,scale,rotation)
 	self.body = love.physics.newBody(game.world, x, y, "dynamic")
 	self.fixture = love.physics.newFixture(self.body, self.shape,0.1)
 	self.fixture:setUserData(self)
-	self.armor = self.armor_max
-	self.shield = self.shield_max
+	self.armor = 10
+	self.shield = 10
 	self.heat = 0
 	self.energy_occupied = 0
 	self.body:setAngularDamping(self.angularDamping)
@@ -49,16 +49,17 @@ end
 
 
 function ship:update(dt)
-	
+	if self.destroyed then return end
 	self:sync()
-	if self.exausted or self.destroyed then return end
+	if self.exhausted  then return end
 	self:slot_update(dt)
 	self:heat_ctrl(dt)
 end
 
 
 function ship:exaust()
-	self.exausted = true
+	self.exhausted = true
+	game.hud:makeExplosion(self)
 	delay:new(10,function() self:destroy() end)
 end
 
@@ -66,7 +67,6 @@ end
 function ship:destroy()
 	self.destroyed = true
 	self.body:destroy()
-	game.hud.cam:shake()
 end
 
 function ship:resetSlots()
@@ -136,12 +136,12 @@ function ship:heat_ctrl(dt)
 end
 
 function ship:damage(damage_point,damage_type)
-	if self.exausted or self.destroyed then return end
+	if self.exhausted or self.destroyed then return end
 	if self.open_shield and self.shieldPower>0 then
 		damage_point = damage_point - damage_point*shieldPower/100
 	end
 	self.armor = self.armor - damage_point
-	if self.armor<0 then self:destroy() end
+	if self.armor<0 then self:exaust()end
 	if damage_type == "structure" then
 
 	elseif damage_type == "energy" then

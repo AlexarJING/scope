@@ -70,17 +70,18 @@ function core:checkMouse(dt)
 		self.target = nil
 	end
 
-    if self.target and self.target == currentTarget then
+    if self.currentTarget and self.currentTarget == currentTarget then
     	self.lockTimer = self.lockTimer + dt
     	if self.lockTimer>self.lockTime then
-    		self.ship.target = self.target
-    		self.target = nil
+    		self.target = self.currentTarget
     	end
     else
     	self.lockTimer = 0
-    	self.target  = currentTarget
+    	self.currentTarget  = currentTarget
     end
-    self.ship.data.lockTarget = self.target
+
+
+    self.ship.data.target = self.target
     if love.mouse.isDown(2) then
     	self.ship.data.mouseX = mx
     	self.ship.data.mouseY = my

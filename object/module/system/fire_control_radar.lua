@@ -22,7 +22,8 @@ function radar:findTarget()
                 table.insert(self.targets,{
                     x = obj.x, y = obj.y,angle = obj.angle,
                     vx = vx, vy = vy,
-                    tx = vx*self.predict_time + obj.x, ty = vy*self.predict_time+obj.y
+                    tx = vx*self.predict_time + obj.x, ty = vy*self.predict_time+obj.y,
+                    obj = obj,tag = obj.tag,dist = dist
                 })
             end
         end
@@ -30,8 +31,7 @@ function radar:findTarget()
     end
     game.world:queryBoundingBox( x-self.radius, y-self.radius, 
         x+self.radius, y+self.radius, callback )
-    --table.sort(self.targets,function(a,b) return a.dist<b.dist end)
-    self.ship.data.fire_control = self.targets
+    self.ship.data.fire_control_world = self.targets
     self.ship.data.fire_ctrl_radius = self.radius
 end
 

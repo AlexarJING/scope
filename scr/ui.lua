@@ -20,10 +20,26 @@ function ui:init(hud)
 
 	self.miniMap = {x = w()-22*unit-10,y = h()-10-22*unit,w = 22*unit,h = 22*unit}
 	self.shop = {x = w()/2-40*unit, y = h()/2-30*unit, w = 80*unit, h = 45*unit, title = "xxxx trading center",bw = unit*10,bh = unit*4}
+	--"statue,stockage,message,event,exchange,dockyard,"
+	self.popButton = {txt = "<",x = 10,y = 10, w = 2*unit, h =4*unit}
+	self.mainMenu = {ox = -w(), tx = 5*unit, cx = 20+2*unit, y = 10,bw = 10*unit,bh = 4*unit}
+	self.mainMenu.buttons = {"statue","stockage","message","event","exchange","dockyard"}
+	self.windows = {
+		statue = {show  = self.statueShow, draw = self.statueDraw},
+		stockage = {show = self.stockageShow,draw = self.stockageDraw},
+		message = {show = self.messageShow,draw = self.messageDraw},
+		event = self.eventShow,
+		exchange = self.exchangeShow,
+		dockyard = self.dockyardShow
+	}
+	self.statue = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
+		 title = "xxxx ship statue",bw = unit*10,bh = unit*4}
+	self.stockage = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
+		 title = "xxxx ship stockage",info = {min = 0,max = 10,step = 1,value = 0,vertical=true},}
 	return self
 end
 
-function ui:update()
+function ui:update(dt)
 	local panel = self.state.panel
 	suit.Panel(panel.x,panel.y,panel.w,panel.h)
 	local buff = self.state.buff
@@ -37,17 +53,43 @@ function ui:update()
 	end
 	local mini = self.miniMap
 	suit.Panel(mini.x,mini.y,mini.w,mini.h)
+	
 
-	local shop = self.shop
-	suit.Panel(shop.x,shop.y,shop.w,shop.h)
-	suit.Button("buy",shop.x+shop.w - shop.bw - unit,shop.y+shop.h,shop.bw,shop.bh)
+	local menu = self.mainMenu
+	--tx = 20+2*unit
+	for i = 1, 6 do
+		if suit.Button(menu.buttons[i],menu.cx+(i-1)*(menu.bw+unit),menu.y,menu.bw,menu.bh).hit then
+			self.currentWindow = menu.buttons[i]
+		end
+	end
+	local pop = self.popButton
+	if suit.Button(pop.txt,pop.x,pop.y,pop.w,pop.h).hit then
+		if pop.txt == "<" then
+			pop.txt = ">"
+			pop.tween = tween.new(1,menu,{cx = menu.ox},"inOutQuart")
+
+		else
+			pop.txt = "<"
+			pop.tween = tween.new(1,menu,{cx = menu.tx},"inOutQuart")
+		end
+	end
+	if pop.tween then pop.tween:update(dt) end
+
+	if self.currentWindow then
+		self.windows[self.currentWindow].show(self)
+	end
 end
 
 function ui:draw()
+	suit.diffused = self.diffused
 	suit.draw()
 	self:drawState()
 	self:drawMini()
-	self:drawShop()
+
+	if self.currentWindow then
+		self.windows[self.currentWindow].draw(self)
+	end
+	--self:drawShop()
 end
 
 
@@ -141,6 +183,114 @@ function ui:drawShop()
 		shop.x + unit*5 + fw, shop.y - fh - 2*unit,
 		shop.x + unit*7 + fw, shop.y
 		)
+
+end
+
+function ui:statueShow()
+	local s = self.statue
+	
+	if suit.Button(s.title,s.x,s.y-s.h/10,s.w,s.h/10).hit then
+		self.currentWindow = nil
+	end
+	suit.Panel(s.x,s.y,s.w,s.h)
+	suit.Panel(s.x,s.y,s.w/4,s.h)
+	suit.Label("hers is description of the ship,or the hovered slot",s.x,s.y,s.w/4,s.h)
+	suit.Panel(s.x + s.w-s.w/2.5,s.y,s.w/2.5,s.h)
+	for i = 1,12 do 
+		suit.Button("slot "..i.." name",s.x + s.w-s.w/2.5,s.y +(i-1)*s.h/12,s.w/2.5,s.h/12)
+	end
+end
+
+local slot_size = 30
+
+function ui:slotDraw(offx,offy,rot,index)
+	love.graphics.push()
+	love.graphics.translate(offx, offy)
+	love.graphics.rotate(rot)
+	love.graphics.setColor(50, 250, 50, 150)
+	love.graphics.rectangle("fill",  - slot_size/2,  - slot_size/2, slot_size, slot_size)
+	love.graphics.setColor(255, 255, 255, 250)
+	love.graphics.polygon("fill", 0, - slot_size/2, - slot_size/2, slot_size/2, slot_size/2,slot_size/2)
+	love.graphics.rotate(-rot)
+	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.printf(index, - slot_size/2,  -2, slot_size, "center")
+	love.graphics.pop()
+end
+
+function ui:statueDraw()
+	local s = self.statue
+	local ship = self.ship
+	local cx,cy = w()/2 - 5*unit, h()/2-5*unit
+	love.graphics.push()
+	love.graphics.translate(cx,cy)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.outlinePolygon(ship.verts,unit*10)
+	local index = 0
+	for slot_type,slots in pairs(ship.slot) do
+		for i,slot in ipairs(slots) do
+			index = index + 1
+			self:slotDraw(unit*slot.offx*10,unit*slot.offy*10,slot.rot*Pi,index)
+		end
+	end
+	love.graphics.pop()
+
+end
+
+function ui:stockageShow()
+	local s = self.stockage
+	
+	if suit.Button(s.title,s.x,s.y-s.h/10,s.w,s.h/10).hit then
+		self.currentWindow = nil
+	end
+
+	
+	suit.Panel(s.x,s.y,s.w,s.h)
+	suit.Panel(s.x,s.y,s.w/4,s.h)
+	suit.Label("hers is description of the items",s.x,s.y,s.w/4,s.h)
+	suit.Panel(s.x +s.w/4,s.y,s.w - s.w/4,s.h)
+	if suit.Slider(s.info,s.info,
+		s.x+s.w ,s.y + 5,unit*2,s.h-10).changed then
+	end
+	local w = (3*s.w/4)
+	local h = s.h/9
+	--for i = 1,5 do
+		for j = 1,9 do 
+			suit.Button("container"..j.."\n item name",
+				s.x +s.w/4 , s.y + (j-1)*h,w,h)
+		end
+	--end
+end
+
+function ui:stockageDraw()
+
+end
+
+function ui:messageShow()
+	local s = self.stockage
+	
+	if suit.Button(s.title,s.x,s.y-s.h/10,s.w,s.h/10).hit then
+		self.currentWindow = nil
+	end
+
+	
+	suit.Panel(s.x,s.y,s.w,s.h)
+	suit.Panel(s.x,s.y,s.w/4,s.h)
+	suit.Label("hers is description of the items",s.x,s.y,s.w/4,s.h)
+	suit.Panel(s.x +s.w/4,s.y,s.w - s.w/4,s.h)
+	if suit.Slider(s.info,s.info,
+		s.x+s.w ,s.y + 5,unit*2,s.h-10).changed then
+	end
+	local w = (3*s.w/4)/5
+	local h = s.h/9
+	--for i = 1,5 do
+		for j = 1,9 do 
+			suit.Button("container"..j.."\n item name",
+				s.x +s.w/4 , s.y + (j-1)*h,w,h)
+		end
+	--end
+end
+
+function ui:messageDraw()
 
 end
 

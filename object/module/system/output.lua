@@ -36,8 +36,11 @@ function mod:init(ship,slot)
 	self.zoom = 1
 	self.energy_spot_mesh = circle(20,0)
 	self.fadeout = require("scr/fadeout"):init()
+	self.explosion = require("scr/explosion"):init()
 	game.hud = self
 	self.ui = require("scr/ui"):init(self)
+	self.canvas = love.graphics.newCanvas()
+	self.diffused = love.graphics.newCanvas()
 end
 
 function mod:update(dt)
@@ -45,40 +48,64 @@ function mod:update(dt)
 	game.hud = self
 	self.cam:followTarget(self.ship,0,10)
 	self.fadeout:update(dt)
-	self.ui:update()
+	self.explosion:update(dt)
+	self.ui:update(dt)
 end
+local code=[[
+	
+	float step = 0.01;
+	
+	vec4 effect( vec4 color, Image texture, vec2 tc, vec2 sc ){
+		vec4 c = vec4(0,0,0,0);
+		c = Texel(texture,vec2(tc.x ,tc.y- step))+
+		Texel(texture,vec2(tc.x ,tc.y))+
+		Texel(texture,vec2(tc.x ,tc.y+ step))+
+		Texel(texture,vec2(tc.x - step,tc.y))+
+		Texel(texture,vec2(tc.x + step,tc.y))
+		;
+		return color*(c/8);
+	}
+]]
+local shader = love.graphics.newShader(code)
 
 function mod:draw()
+	love.graphics.setCanvas(self.canvas)
+	love.graphics.clear()
 	self.cam:draw(function()
 		self.fadeout:draw()
 	end)
 	self:drawGrid()
 	--self:drawPlayer() --包括飞机，slot,shield 等
 	self:drawVisibleWorld()
-	
+	self.cam:draw(function()
+		self.explosion:draw()
+	end)
+	--self:drawExplosion()
 	self:drawPlayer()
 	self:drawEnergyWorld()
 	self:drawFireCtrl()
 	--self:drawAnalyser()
+	self:drawTarget()
+	love.graphics.setCanvas()
+	love.graphics.setCanvas(self.diffused)
+	love.graphics.clear()
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setShader(shader)
+	love.graphics.draw(self.canvas)
+	love.graphics.setShader()
+	love.graphics.setCanvas()
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.draw(self.canvas)
+	suit.theme.bgTexture = self.diffused
 	self.ui:draw()
 end
 
 function mod:drawGrid()
+	love.graphics.setColor(255, 255, 255, 255)
 	self.grid.draw()
 end
 
-function mod:slotDraw(x,y,angle,offx,offy,rot,scale)
-	love.graphics.push()
-	love.graphics.translate(x, y)
-	love.graphics.rotate(angle)
-	love.graphics.translate(offx, offy)
-	love.graphics.rotate(rot)
-	love.graphics.setColor(50, 250, 50, 150)
-	love.graphics.rectangle("fill",  - scale/10,  - scale/10, scale/5, scale/5)
-	love.graphics.setColor(255, 255, 255, 250)
-	love.graphics.polygon("fill", 0, - scale/10, - scale/10, slot_size/10, slot_size/10,slot_size/10)
-	love.graphics.pop()
-end
+
 
 function mod:inScreen(x,y)
 	local player = self.ship
@@ -111,7 +138,7 @@ function mod:drawVisibleWorld()
 		local kx,ky=(data.x-player.x)/(0.5*w()/self.cam.scale),(data.y-player.y)/(0.5*h()/self.cam.scale)
         local team = data.team
     	local color 
-		if data.exausted then
+		if data.exhausted then
 			color = self.color_style.exausted
 		elseif team ==1 then --player
 			color = self.color_style.unit_player
@@ -163,22 +190,24 @@ function mod:drawEnergyWorld()
 end
 
 function mod:drawFireCtrl()
-	local world = self.ship:getData("fire_control")
+	local world = self.ship:getData("fire_control_world")
 	if not world then return end
 	self.cam:draw(function()
 	love.graphics.setLineWidth(1)	
 	for i , data in ipairs(world) do
-		love.graphics.setColor(self.color_style.fire_control)
-		love.graphics.push()
-		love.graphics.translate(data.x, data.y)
-		love.graphics.rotate(data.angle)
-		love.graphics.rectangle("line", -spot_size/2, -spot_size/2, spot_size, spot_size)
-		love.graphics.pop()
-		love.graphics.push()
-		love.graphics.translate(data.tx, data.ty)
-		love.graphics.circle("line", 0, 0,spot_size/2)
-		love.graphics.pop()
-		love.graphics.line(data.x, data.y, data.tx, data.ty)
+		if data.tag == "ship" then
+			love.graphics.setColor(self.color_style.fire_control)
+			love.graphics.push()
+			love.graphics.translate(data.x, data.y)
+			love.graphics.rotate(data.angle)
+			love.graphics.rectangle("line", -spot_size/2, -spot_size/2, spot_size, spot_size)
+			love.graphics.pop()
+			love.graphics.push()
+			love.graphics.translate(data.tx, data.ty)
+			love.graphics.circle("line", 0, 0,spot_size/2)
+			love.graphics.pop()
+			love.graphics.line(data.x, data.y, data.tx, data.ty)
+		end
 	end
 	end)
 end
@@ -203,6 +232,57 @@ function mod:drawAnalyser()
 		end
 	end
 	end)
+end
+
+function mod:drawTarget()
+	local target = self.ship.data.target
+	if target then
+		self.cam:draw(function() 
+		love.graphics.push()
+		love.graphics.setColor(0, 255, 0, 255)
+		love.graphics.translate(target.x, target.y)
+		local scale = target.scale
+		local len = scale/4
+		love.graphics.line(-scale,-scale+len,-scale,-scale,-scale+len,-scale)
+		love.graphics.line(scale,-scale+len,scale,-scale,scale-len,-scale)
+		love.graphics.line(-scale,scale-len,-scale,scale,-scale+len,scale)
+		love.graphics.line(scale,scale-len,scale,scale,scale-len,scale)
+		love.graphics.pop()
+		end)
+	end
+	local mx,my = self.ship.data.mouseX,self.ship.data.mouseY
+	if mx then
+		self.cam:draw(function() 
+		love.graphics.push()
+		love.graphics.setColor(0, 255, 0, 255)
+		love.graphics.translate(mx, my)
+		local len = 20
+		love.graphics.line(-len,-len,-len/2,-len/2)
+		love.graphics.line(len,len,len/2,len/2)
+		love.graphics.line(len,-len,len/2,-len/2)
+		love.graphics.line(-len,len,-len/2,len/2)
+
+		
+		love.graphics.pop()
+		end)
+	end
+end
+--x,y,angle,verts,scale,color
+function mod:makeExplosion(t)
+	game.hud.cam:shake()
+	local color
+
+	if t.team ==1 then --player
+		color = self.color_style.unit_player
+	elseif t.team>1 then--friend
+		color = self.color_style.unit_friend
+	elseif t.team == 0 then  --neutral
+		color = self.color_style.unit_neutral
+	else -- team<0 enemy
+		color = self.color_style.unit_enemy
+	end	
+	--print(t.x,t.y,t.angle,t.verts,t.scale,color)
+	self.explosion:add(t.x,t.y,t.angle,t.verts,t.scale,color)
 end
 
 function mod:setZoom(d)

@@ -1,20 +1,31 @@
 local analyser = class("analyser",obj.module.base)
-analyser.coverage = 0.4
 analyser.heat = 1
 analyser.mod_name = "brain"
-analyser.mod_type = "universal"
-analyser.radius = 5000
-function analyser:init(ship,slot)
-	obj.module.base.init(self,ship,slot)
-	game.hud.drawFoeState = self.foedraw
+analyser.mod_type = "system"
+analyser.radius = 500
+function analyser:init(...)
+	obj.module.base.init(self,...)
+	self.objBuffer = {}
 end
-
-
-function analyser:inRadius(ship)
-	local player = game.player
-	local rad = h()/3
-	local dist = math.getDistance(player.x,player.y,ship.x,ship.y)
-    return dist*game.cam.scale<rad
+function analyser:update(dt)
+	obj.module.base.update(dt)
+	local world = self.ship.data.visible_world
+	if not world then return end
+	local detailData = {}
+	for i, data in ipairs(world) do
+		local obj = data.obj
+		if obj.dist<self.radius then
+			detailData[i] = {
+				obj = obj,
+				team = obj.team,
+				struct = obj.struct,
+				energy = obj.energy,
+				heat = obj.heat,
+				slots = obj.slots
+			}
+		end
+	end
+	self.ship.data.detailData = detailData
 end
 
 
