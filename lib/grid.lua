@@ -40,7 +40,7 @@ end
 function grid.draw()
 	shader:send("offx",grid.cam.x*grid.cam.scale)
 	shader:send("offy",grid.cam.y*grid.cam.scale)
-	
+	shader:send("gridSize",gridSize*grid.cam.scale)
 	love.graphics.setShader(shader)
 	love.graphics.setColor(1,1,1,1)
 	love.graphics.rectangle("fill", 0, 0, w(), h())

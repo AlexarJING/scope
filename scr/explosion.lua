@@ -1,5 +1,6 @@
 local exp = {}
 local lifeMax = 3
+local lv = 100
 function exp:init()
 	self.lines = {}
 	return self
@@ -13,7 +14,7 @@ function exp:add(x,y,angle,verts,scale,color)
 			verts[i],verts[i+1],
 			verts[i+2] or verts[1],verts[i+3] or verts[2],
 		}
-		local vx,vy = love.math.random(-50,50),love.math.random(-50,50)
+		local vx,vy = love.math.random(-lv,lv),love.math.random(-lv,lv)
 		table.insert(self.lines,{
 			line = line,
 			vx = vx,vy = vy,

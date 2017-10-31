@@ -35,7 +35,7 @@ function game:update(dt)
 end
 
 function game:draw()
-    self.hud:draw()
+    if self.hud then self.hud:draw() end
     --[[
     love.graphics.setColor(255,0,0)
         debugDraw.draw(self.world) --物理世界debug

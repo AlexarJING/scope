@@ -1,11 +1,12 @@
 local weapon = class("weapon",obj.module.base)
-weapon.mod_type = "battle"
+weapon.socket = "weapon"
 weapon.mod_name = "hell fire"
+weapon.energy_occupy = 10
+weapon.heat_produce = 0
 
-weapon.fire_cd = 0.1 --发射间隔
+weapon.cool_down = 3 --发射间隔
 weapon.chargeTime = 0 --充能时间
-weapon.heat = 0 --单次发射的热量
-weapon.heat_generate = 1 --动力武器产热
+weapon.heat_per_shot = 1 --单次发射的热量
 
 weapon.fire_count = 1 --单次发射的子弹量
 weapon.fire_offset = 0 --子弹的旋转偏移（可模拟子弹不精确，或随机子弹角度）
@@ -43,16 +44,16 @@ weapon.verts = {
 }
 function weapon:init(...)
 	obj.module.base.init(self,...)
-	self.fire_timer = 0
+	self.cd_timer = 0
 	self.charge_timer = self.chargeTime
 	self.rot = 0
 end
 
 function weapon:update(dt)
+	obj.module.base.update(self,dt)
 	self:sync()
 	if self.autoTarget then
 		self:getTarget()
-		self:predictPosition()
 		self:traceTarget(dt)
 	end
 	self:fireControl(dt)
@@ -72,64 +73,58 @@ end
 
 function weapon:getTarget()
 	self.target = nil
-	if self.ship.data.mouseX then
-		self.target = {
-			x = self.ship.data.mouseX,
-			y = self.ship.data.mouseY
-		}
+	if self.ship.data.mouse then
+		self.target = self.ship.data.mouse
 		return
 	end
 
 	if self.ship.data.target then
-		local target = self.ship.data.target
-		local fcw = self.ship.data.fire_control_world
-		if fcw then
-			for i,v in ipairs(fcw) do
-				if v.obj == target then
-					self.target = v
-					return
-				end
-			end
-		end
-		self.target = {
-			x = target.x,
-			y = target.y
-		}
+		self.target = self.ship.data.target
+		return
 	end
 
-	local targets = self.ship.data.fire_control_world or self.ship.data.visible_world
+	local targets = self.ship.data.world.visual or self.ship.data.world.fire_ctrl
 	if not targets then	
 		return 
 	end
-	table.sort(targets,function(a,b) return a.dist<b.dist end)
+	--table.sort(targets,function(a,b) return a.dist<b.dist end)
+	local candidate
+	local c_dist = 1/0
 	for i = 1,#targets do
-		local target = targets[i].obj
-		local dist = targets[i].dist
-		local rot = math.unitAngle(math.getRot(self.x,self.y,target.x,target.y)-self.ship.angle)
-		if not target.destroyed and not target.exhausted and (self.target_type == targets[i].tag or self.target_type == "all")
+		local target = targets[i]
+		local dist = self.ship:getDist(targets[i])
+		local rot = self:getAzi(target)
+		if  target.state == "active" and (self.target_type == targets[i].tag or self.target_type == "all")
 				and (target.team and target.team~= self.ship.team) then
-			if self.autoTarget then 
+			if self.autoTarget then
+				local rot = self:getAzi(target)
 				if dist<self.autoFireRange and rot> -self.rotLimit and rot< self.rotLimit then
-					self.target = target
-					return
+					if dist<c_dist then
+						c_dist = dist
+						candidate = target
+					end
 				end
 			else
-				self.target = target
-				return
+				if dist<c_dist then
+					c_dist = dist
+					candidate = target
+				end
 			end
 		end	
 	end
+	self.target = candidate
+	self.target_dist = c_dist
 end
 
 function weapon:fireControl(dt)
-	self.fire_timer = self.fire_timer - dt
-	if self.fire_timer<0 and not self.ship.overheat and 
+	self.cd_timer = self.cd_timer - dt
+	if self.cd_timer<0 and not self.ship.overheat and 
 		((self.target and self.autoFire) or 
 		(not self.autoFire and self.ship.data.action.fire))  then
 			self.charge_timer =  self.charge_timer - dt
 			if self.charge_timer<=0 then
-				self.fire_timer = self.fire_cd
-				self.ship.heat = self.ship.heat + self.heat
+				self.cd_timer = self.cool_down
+				self.ship.heat = self.ship.heat + self.heat_per_shot
 				for i = 1,self.fire_count do
 					self.bullet(self,self.x,self.y,
 						self.angle-love.math.random()*self.fire_offset*2+self.fire_offset)
@@ -141,8 +136,21 @@ function weapon:fireControl(dt)
 end
 
 function weapon:traceTarget(dt)
-	if not self.target then return end
-    local tx,ty = self.target.tx or self.target.x,self.target.ty or self.target.y
+	if not self.target then 
+		--if self.rot > 0 then
+		--	self.rot = self.rot - self.rotSpeed * dt
+		--else
+		--	self.rot = self.rot + self.rotSpeed * dt
+		--end
+		return 
+	end
+    local tx,ty
+    if self.target.vx then
+    	local t = self.target_dist/self.initVelocity 
+    	tx,ty = self.target.vx * t + self.target.x, self.target.vy * t +  self.target.y
+    else
+    	tx,ty = self.target.x , self.target.y
+    end 
 	local rot = math.unitAngle(math.getRot(self.x,self.y,tx,ty))
 	self.angle = math.unitAngle(self.angle)
     if rot>self.angle and math.abs(rot - self.angle)< math.pi or
@@ -161,36 +169,11 @@ function weapon:traceTarget(dt)
 end
 
 function weapon:draw()
-	if self.ship ~= game.player then return end
-	if self.target and self.drawTarget then
-		local target = self.target
-		love.graphics.push()
-		love.graphics.rotate(-self.ship.angle)
-		love.graphics.translate(-self.x, -self.y)		
-		love.graphics.translate(target.x, target.y)
-		love.graphics.setColor(255, 0, 0, 255)
-		love.graphics.line(-self.scale,0,self.scale,0)
-		love.graphics.line(0,-self.scale,0,self.scale)
-		love.graphics.circle("line", 0, 0, self.scale/2)
-		love.graphics.pop()
-		love.graphics.print(tostring(self.target))
-	end
-
-	if self.drawRange then
-		love.graphics.setColor(0, 255, 0, 20)
-		love.graphics.arc("fill", 0, 0, self.autoFireRange, -self.rotLimit-Pi/2, self.rotLimit-Pi/2)
-	end
+	
+	love.graphics.setColor(0, 255, 0, 20)
+	love.graphics.arc("fill", 0, 0, self.autoFireRange, -self.rotLimit-Pi/2, self.rotLimit-Pi/2)
+	
 end
 
-function weapon:predictPosition()
-	if self.target and self.target.tx and self.target.obj then
-		local vx,vy = self.target.obj.body:getLinearVelocity()
-		local predict_time = self.target.dist/weapon.initVelocity 
- 		self.target.tx = vx*predict_time + self.target.obj.x
- 		self.target.ty = vy*predict_time + self.target.obj.y
-
-	end
-
-end
 
 return weapon

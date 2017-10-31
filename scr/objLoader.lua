@@ -1,3 +1,5 @@
+obj = {}
+
 local function loadDir(dir,tab)
 	local objs = tab or {}
 	for _,fullname in ipairs(love.filesystem.getDirectoryItems(dir)) do
@@ -7,15 +9,23 @@ local function loadDir(dir,tab)
     return objs
 end
 
-obj = {}
+local function loadMod(socket)
+	local dir = "object/module/"..socket.."/"
+	obj.module[socket] = {}
+	obj.module[socket].base = require(dir..socket) --所有的base均为同名文件
+	loadDir(dir,obj.module[socket])
+end
+
+
 
 obj.others = loadDir("object/others/")
 
 obj.module = {}
 obj.module.base = require "object/module/base"
-obj.module.system = loadDir("object/module/system/")
-obj.module.engine = loadDir("object/module/engine/")
-obj.module.battle = loadDir("object/module/battle/")
+local sockets = {"cockpit","engine","hud","radar","system","weapon"}
+for i,mod  in ipairs(sockets) do
+	loadMod(mod)
+end
 
 obj.ship = {}
 obj.ship.base = require "object/ship/base"

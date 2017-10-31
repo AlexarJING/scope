@@ -1,8 +1,9 @@
 local mod = class("mod")
-mod.heat_produce = 0
-mod.energy_occupy = 0
+mod.heat_produce = 10
+mod.energy_occupy = 3
 mod.mod_name = "undefined"
-mod.mod_type = "undefined"
+mod.socket = "undefined"
+
 function mod:init(ship,slot)
 	self.ship = ship
 	self.slot = slot
@@ -14,8 +15,8 @@ function mod:update(dt)
 	self.ship.energy_occupied = self.ship.energy_occupied + (self.ship.energy_occupy or 0)
 end
 
-function mod:draw()
-	
+function mod:getAzi(target)
+	return math.unitAngle(math.getRot(self.x,self.y,target.x,target.y)-self.ship.angle)
 end
 
 return mod

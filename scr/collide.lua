@@ -3,13 +3,18 @@ local c={}
 local function begin(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	if objA.team== objB.team then
+	
+	if (objA.tag == "bullet" and objA.ship == objB) or 
+		(objB.tag == "bullet" and objB.ship == objA)then
 		coll:setEnabled(false)
-		return
+		return 
 	end
+
 	if objA.tag == "bullet" and objB.tag == "bullet" then
-		objA:destroy()
-		objA:destroy()
+		coll:setEnabled(false)
+		--objA:destroy()
+		--objA:destroy()
+		return
 	end
 
 	if objA.tag == "bullet" and objB.tag == "ship" then
@@ -22,24 +27,18 @@ end
 local function pre(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	if objA.team== objB.team then
+	if (objA.tag == "bullet" and objA.ship == objB) or 
+		(objB.tag == "bullet" and objB.ship == objA)then
 		coll:setEnabled(false)
-		return
+		return 
 	end
 end
 
 local function post(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)
-	local objA=a:getUserData()
-	local objB=b:getUserData()
-
-
 end
 
 
-local function endC(a,b,coll)
-	local objA=a:getUserData()
-	local objB=b:getUserData()
-	
+local function endC(a,b,coll)	
 end
 
 

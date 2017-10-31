@@ -2,9 +2,9 @@ local engine = class("engine",obj.module.base)
 engine.sidePower = 50
 engine.turnPower = 150
 engine.pushPower = 50
-engine.heat = 10
+engine.heat_per_sec = 10
 engine.mod_name = "pareto"
-engine.mod_type = "engine"
+engine.socket = "engine"
 
 function engine:update(dt)
 	local action = self.ship.data.action
@@ -25,14 +25,14 @@ function engine:push(a)
 	local dt = love.timer.getDelta()
 	self.body:applyLinearImpulse(a *self.pushPower*math.sin(self.angle)*dt,
 		-a*self.pushPower*math.cos(self.angle)*dt)
-	self.ship.heat = self.ship.heat + self.heat*dt
+	self.ship.heat = self.ship.heat + self.heat_per_sec*dt
 end
 
 function engine:turn(a)
 	if not a then return end
 	local dt = love.timer.getDelta()
 	self.body:applyAngularImpulse(-a*self.turnPower*dt)
-	self.ship.heat = self.ship.heat + self.heat*dt
+	self.ship.heat = self.ship.heat + self.heat_per_sec*dt
 end
 
 function engine:side(a)
@@ -40,14 +40,14 @@ function engine:side(a)
 	local dt = love.timer.getDelta()
 	self.body:applyLinearImpulse(-a*self.sidePower*math.cos(self.angle)*dt,
 		-a*self.sidePower*math.sin(self.angle)*dt)
-	self.ship.heat = self.ship.heat + self.heat*dt
+	self.ship.heat = self.ship.heat + self.heat_per_sec*dt
 end
 
 function engine:stop(toggle)
 	if not toggle then return end
 	local dt = love.timer.getDelta()
 	self.body:setLinearDamping(3)
-	self.ship.heat = self.ship.heat + self.heat*dt
+	self.ship.heat = self.ship.heat + self.heat_per_sec*dt
 end
 
 return engine

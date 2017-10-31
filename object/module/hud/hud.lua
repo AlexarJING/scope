@@ -2,7 +2,7 @@ local mod = class("graphic",obj.module.base)
 mod.heat_produce = 0
 mod.energy_occupy = 0
 mod.mod_name = "user interface"
-mod.mod_type = "system"
+mod.socket = "system"
 mod.color_style = {
 	theme_main = {0,255,0,255},
 	overheat = {255,0,0,255},
@@ -46,11 +46,11 @@ end
 function mod:update(dt)
 	obj.module.base.update(self,dt)
 	game.hud = self
-	self.cam:followTarget(self.ship,0,10)
-	self.fadeout:update(dt)
-	self.explosion:update(dt)
-	self.ui:update(dt)
+	
 end
+
+
+
 local code=[[
 	
 	float step = 0.01;
@@ -69,6 +69,13 @@ local code=[[
 local shader = love.graphics.newShader(code)
 
 function mod:draw()
+	local dt = love.timer.getDelta()
+	self.cam:followTarget(self.ship,0,10)
+	self.fadeout:update(dt)
+	self.explosion:update(dt)
+	self.ui:update(dt)
+
+
 	love.graphics.setCanvas(self.canvas)
 	love.graphics.clear()
 	self.cam:draw(function()
@@ -105,12 +112,18 @@ function mod:drawGrid()
 	self.grid.draw()
 end
 
+function mod:drawShield(ship)
+	local data = ship.data
+	if not data then return end
+	if not data.action.shield or not  data.shield_coverage then return end
+	
 
-
-function mod:inScreen(x,y)
-	local player = self.ship
-	local kx,ky=(x-player.x)/(0.5*w()/self.cam.scale),(y-player.y)/(0.5*h()/self.cam.scale)
-    return math.abs(kx)<= 1 and  math.abs(ky)<=1
+	for i = 0 , data.shield_coverage, 0.02 do
+		love.graphics.setColor(200, 150, 255,2)
+		--love.graphics.setLineWidth(5-i*8)
+		love.graphics.arc("fill", 0, 0, ship.scale*1.2, -Pi/2 - i*Pi, -Pi/2 + i*Pi)
+		love.graphics.arc("line", 0, 0, ship.scale*1.2, -Pi/2 - i*Pi, -Pi/2 + i*Pi)
+	end
 end
 
 function mod:drawShip(ship)
@@ -119,6 +132,7 @@ function mod:drawShip(ship)
 	love.graphics.translate(ship.x, ship.y)
 	love.graphics.rotate(ship.angle)
 	love.graphics.outlinePolygon(ship.verts,ship.scale)
+	self:drawShield(ship)
 	love.graphics.pop()
 	end)
 end
@@ -128,45 +142,48 @@ function mod:drawPlayer()
 	self:drawShip(self.ship)
 end
 
+
+
+function mod:getColor(obj)
+	local color
+	if obj.state == "exhausted" then
+		color = self.color_style.exausted
+	elseif obj.team ==1 then --player
+		color = self.color_style.unit_player
+	elseif obj.team>1 then--friend
+		color = self.color_style.unit_friend
+	elseif obj.team == 0 then  --neutral
+		color = self.color_style.unit_neutral
+	else -- team<0 enemy
+		color = self.color_style.unit_enemy
+	end
+	return color
+end
+
 function mod:drawVisibleWorld()
 	local player = self.ship
-	local world = self.ship:getData("visible_world")
+	local world = self.ship.data.world.visual
 	--print(#world)
 	if not world then return end
 	
-	for i , data in ipairs(world) do		
-		local kx,ky=(data.x-player.x)/(0.5*w()/self.cam.scale),(data.y-player.y)/(0.5*h()/self.cam.scale)
-        local team = data.team
-    	local color 
-		if data.exhausted then
-			color = self.color_style.exausted
-		elseif team ==1 then --player
-			color = self.color_style.unit_player
-		elseif team>1 then--friend
-			color = self.color_style.unit_friend
-		elseif team == 0 then  --neutral
-			color = self.color_style.unit_neutral
-		else -- team<0 enemy
-			color = self.color_style.unit_enemy
-		end	
-		
+	for i , obj in ipairs(world) do		
+		local kx,ky = self.ship:getNormScale(obj)
+        local team = obj.team
+    	local color = self:getColor(obj)
+
         if math.abs(kx)>1 or math.abs(ky)>1 then -- 在当前视野范围外
             local dist_norm = (kx^2+ky^2)^0.5   -- 归一化距离
-            local _=255-dist_norm*20
-            if _>0 then
-                love.graphics.setColor(color[1],color[2],color[3], _)
-                if math.abs(kx)>math.abs(ky) then
-                    love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
-                else
-                    love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
-                end
+            local a=255-dist_norm*20
+            love.graphics.setColor(color[1],color[2],color[3], color[4]*a)
+            if math.abs(kx)>math.abs(ky) then
+                love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
+            else
+                love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
             end
         else
-        	--self.cam:draw(function()
-        	love.graphics.setColor(color)
-			self:drawShip(data)
-			self.fadeout:addLine(data.ox,data.oy,data.x,data.y,color,data.scale)
-			--end)
+	    	love.graphics.setColor(color)
+			self:drawShip(obj)
+			self.fadeout:addLine(obj.ox,obj.oy,obj.x,obj.y,color,obj.scale)
         end
 	end
 	
@@ -176,59 +193,66 @@ end
 local spot_size = 30 --heat == 100时
 
 function mod:drawEnergyWorld()
-	local world = self.ship:getData("energy_world")
+	local world = self.ship.data.world.energy
 	if not world then return end
 	self.cam:draw(function()	
-	for i , data in ipairs(world) do
-		if self:inScreen(data.x,data.y) then
+	for i , obj in ipairs(world) do
+		if self.ship:inScreen(obj) then
 			love.graphics.setColor(self.color_style.energy_spot)
-			local scale = spot_size*data.heat/100
-			love.graphics.draw(self.energy_spot_mesh,data.x,data.y,0,scale,scale)
+			local scale = spot_size*(obj.heat or 0)/100
+			love.graphics.draw(self.energy_spot_mesh,obj.x,obj.y,0,scale,scale)
 		end
 	end
 	end)
 end
 
+local spot_size = 30
+local predict_time = 0.3
 function mod:drawFireCtrl()
-	local world = self.ship:getData("fire_control_world")
+	local world = self.ship.data.world.fire_ctrl
 	if not world then return end
 	self.cam:draw(function()
 	love.graphics.setLineWidth(1)	
-	for i , data in ipairs(world) do
-		if data.tag == "ship" then
+	for i , obj in ipairs(world) do
+		if obj.tag == "ship" and self.ship:inScreen(obj) then
 			love.graphics.setColor(self.color_style.fire_control)
 			love.graphics.push()
-			love.graphics.translate(data.x, data.y)
-			love.graphics.rotate(data.angle)
+			love.graphics.translate(obj.x, obj.y)
+			love.graphics.rotate(obj.angle)
 			love.graphics.rectangle("line", -spot_size/2, -spot_size/2, spot_size, spot_size)
 			love.graphics.pop()
 			love.graphics.push()
-			love.graphics.translate(data.tx, data.ty)
+			local px,py = obj:predictPosition(predict_time)
+			love.graphics.translate(px,py)
 			love.graphics.circle("line", 0, 0,spot_size/2)
 			love.graphics.pop()
-			love.graphics.line(data.x, data.y, data.tx, data.ty)
+			love.graphics.line(obj.x, obj.y, px,py)
 		end
 	end
 	end)
 end
 
 function mod:drawAnalyser()
-
-	game.cam:draw(function()
-	for i,ship in ipairs(game.enemies) do
-		if analyser:inRadius(ship) then
-		love.graphics.setColor(50, 255, 50, 50)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-20, ship.scale*2, 5)
-		love.graphics.setColor(50, 255, 50, 255)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-20, ship.scale*2*ship.armor/ship.armor_max, 5)
-		love.graphics.setColor(255, 55, 250, 50)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2, 5)
-		love.graphics.setColor(255, 55, 250, 255)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2*ship.shield/ship.shield_max, 5)
-		love.graphics.setColor(255, 255, 0, 50)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2, 5)
-		love.graphics.setColor(255, 255, 0, 255)
-		love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2*ship.heat/ship.heat_max, 5)
+	local world = self.ship.data.world.analyse
+	if not world then return end
+	self.cam:draw(function()
+	love.graphics.setLineWidth(1)	
+	for i , ship in ipairs(world) do
+		if ship.tag == "ship" and self.ship:inScreen(ship) then
+			love.graphics.setColor(50, 255, 50, 50)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-20, ship.scale*2, 5)
+			love.graphics.setColor(50, 255, 50, 255)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-20, ship.scale*2*ship.struct/ship.struct_max, 5)
+			love.graphics.setColor(255, 55, 250, 50)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2, 5)
+			love.graphics.setColor(255, 55, 250, 255)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2*ship.energy/ship.energy_max, 5)
+			love.graphics.setColor(100, 100, 100, 255)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2*ship.energy_occupied/ship.energy_max, 5)
+			love.graphics.setColor(255, 255, 0, 50)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2, 5)
+			love.graphics.setColor(255, 255, 0, 255)
+			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2*ship.heat/ship.heat_max, 5)
 		end
 	end
 	end)
@@ -250,8 +274,8 @@ function mod:drawTarget()
 		love.graphics.pop()
 		end)
 	end
-	local mx,my = self.ship.data.mouseX,self.ship.data.mouseY
-	if mx then
+	if self.ship.data.mouse then
+		local mx,my = self.ship.data.mouse[1],self.ship.data.mouse[2]
 		self.cam:draw(function() 
 		love.graphics.push()
 		love.graphics.setColor(0, 255, 0, 255)
@@ -260,9 +284,7 @@ function mod:drawTarget()
 		love.graphics.line(-len,-len,-len/2,-len/2)
 		love.graphics.line(len,len,len/2,len/2)
 		love.graphics.line(len,-len,len/2,-len/2)
-		love.graphics.line(-len,len,-len/2,len/2)
-
-		
+		love.graphics.line(-len,len,-len/2,len/2)	
 		love.graphics.pop()
 		end)
 	end
@@ -290,23 +312,11 @@ function mod:setZoom(d)
     self.zoom = self.zoom + d/10
     if self.zoom < 0.1 then self.zoom = 0.1 end
     
-    if w()/2/self.zoom > self.ship.data.visible_radius then
+    if w()/2/self.zoom > self.ship.data.visual_radius then
         self.zoom = last
     end
     self.cam:setScale(self.zoom)
     self.cam.x,self.cam.y = self.ship.x,self.ship.y
-end
-
-function mod:drawUI()
-	
-end
-
-function mod:drawState()
-
-end
-
-function mod:drawMiniMap()
-
 end
 
 

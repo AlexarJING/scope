@@ -20,20 +20,20 @@ function ui:init(hud)
 
 	self.miniMap = {x = w()-22*unit-10,y = h()-10-22*unit,w = 22*unit,h = 22*unit}
 	self.shop = {x = w()/2-40*unit, y = h()/2-30*unit, w = 80*unit, h = 45*unit, title = "xxxx trading center",bw = unit*10,bh = unit*4}
-	--"statue,stockage,message,event,exchange,dockyard,"
+	--"status,stockage,message,event,exchange,dockyard,"
 	self.popButton = {txt = "<",x = 10,y = 10, w = 2*unit, h =4*unit}
 	self.mainMenu = {ox = -w(), tx = 5*unit, cx = 20+2*unit, y = 10,bw = 10*unit,bh = 4*unit}
-	self.mainMenu.buttons = {"statue","stockage","message","event","exchange","dockyard"}
+	self.mainMenu.buttons = {"status","stockage","message","event","exchange","dockyard"}
 	self.windows = {
-		statue = {show  = self.statueShow, draw = self.statueDraw},
+		status = {show  = self.statusShow, draw = self.statusDraw},
 		stockage = {show = self.stockageShow,draw = self.stockageDraw},
 		message = {show = self.messageShow,draw = self.messageDraw},
 		event = self.eventShow,
 		exchange = self.exchangeShow,
 		dockyard = self.dockyardShow
 	}
-	self.statue = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
-		 title = "xxxx ship statue",bw = unit*10,bh = unit*4}
+	self.status = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
+		 title = "xxxx ship status",bw = unit*10,bh = unit*4}
 	self.stockage = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
 		 title = "xxxx ship stockage",info = {min = 0,max = 10,step = 1,value = 0,vertical=true},}
 	return self
@@ -46,11 +46,67 @@ function ui:update(dt)
 	for i = 1,8 do
 		suit.Button("buff\n"..i,buff.x + (i-1)*(buff.w+2),buff.y,buff.w,buff.h)
 	end
-	local action = self.action
-	suit.Panel(action.x,action.y,action.w,action.h)
-	for i = 1, 12 do
-		suit.Button("mod\n"..i,action.x + (i-1)*action.bw+6*i , action.y+unit,action.bw,action.bh)
+	
+	local count = 0
+	local mods = {}
+	for socket, tab in pairs(self.ship.slot) do
+		for i, slot in ipairs(tab) do
+			count = count + 1
+			local tab = {
+				slot = slot,
+				socket = socket,
+				mod = slot.plugin,
+				enabled = slot.enabled,
+			}
+			if tab.mod then
+				tab.name = tab.mod.mod_name
+				tab.timer = tab.mod.cd_timer
+				tab.cd = tab.mod.cool_down
+			else
+				tab.name = "not used"
+			end
+			mods[count] = tab
+		end
 	end
+	self.action.mods = mods
+	local action = self.action
+	
+	if #mods<13 then
+		suit.Panel(action.x,action.y,action.w,action.h)
+		for i = 1, 12 do
+			local mod = mods[i]
+			if mod then
+				local name = i.." ".."\n"..mod.name
+				if suit.Button(name,
+					{toggle = mod.slot.enabled},action.x + (i-1)*action.bw+6*i , action.y+unit,action.bw,action.bh).hit then
+					mod.slot.enabled = not mod.slot.enabled
+				end
+			end
+		end
+	else
+		suit.Panel(action.x,action.y-action.bh,action.w,action.h+action.bh)
+		for i = 1, 12 do
+			local mod = mods[i]
+			if mod then
+				local name = i.." ".."\n"..mod.name
+				if suit.Button(name,
+					{toggle = mod.slot.enabled},action.x + (i-1)*action.bw+6*i , action.y+unit-action.bh,action.bw,action.bh).hit then
+					mod.slot.enabled = not mod.slot.enabled
+				end
+			end
+		end
+		for i = 13, 24 do
+			local mod = mods[i]
+			if mod then
+				local name = i.." ".."\n"..mod.name
+				if suit.Button(name,
+					{toggle = mod.slot.enabled},action.x + (i-13)*action.bw+6*(i-13) , action.y+unit,action.bw,action.bh).hit then
+					mod.slot.enabled = not mod.slot.enabled
+				end
+			end
+		end
+	end
+	
 	local mini = self.miniMap
 	suit.Panel(mini.x,mini.y,mini.w,mini.h)
 	
@@ -83,13 +139,60 @@ end
 function ui:draw()
 	suit.diffused = self.diffused
 	suit.draw()
+	self:drawCoolDown()
 	self:drawState()
 	self:drawMini()
 
 	if self.currentWindow then
 		self.windows[self.currentWindow].draw(self)
 	end
+	
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.print(tostring(self.ship.data.target),200,200)
+	
 	--self:drawShop()
+end
+
+function ui:drawRectPie(x,y,w,h,percent)
+	if percent<0 then return end
+	local function to_cut()
+		love.graphics.arc("fill", x+w/2, y+h/2, w*2, -Pi/2, 2*Pi*(1-percent) -Pi/2)
+	end
+	love.graphics.stencil(to_cut, "replace", 1)
+
+    love.graphics.setStencilTest("less", 1)
+ 
+    love.graphics.setColor(100, 100, 255, 250)
+    love.graphics.rectangle("fill", x, y, w, h)
+    love.graphics.setColor(0, 0, 0, 250)    
+end
+
+
+function ui:drawCoolDown()
+	local mods = self.action.mods
+	local action = self.action
+	if #mods<13 then
+		for i = 1, 12 do
+			local mod = mods[i]
+			if mod and mod.cd then
+				self:drawRectPie(action.x + (i-1)*action.bw+6*i , action.y+unit,action.bw,action.bh,mod.timer/mod.cd)
+			end
+		end
+	else
+		suit.Panel(action.x,action.y-action.bh,action.w,action.h+action.bh)
+		for i = 1, 12 do
+			local mod = mods[i]
+			if mod and mod.cd then
+				self:drawRectPie( action.x + (i-1)*action.bw+6*i , action.y+unit-action.bh,action.bw,action.bh,mod.timer/mod.cd)
+			end
+		end
+		for i = 13, 24 do
+			local mod = mods[i]
+			if mod and mod.cd then
+				self:drawRectPie( action.x + (i-13)*action.bw+6*(i-13) , action.y+unit,action.bw,action.bh,mod.timer/mod.cd)
+			end
+		end
+	end
 end
 
 
@@ -133,26 +236,29 @@ function ui:drawState()
     love.graphics.setColor(50, 255, 50, 50)
     love.graphics.rectangle("fill", bar.x + bar.offx , bar.y, bar.w, bar.h)
     love.graphics.setColor(50, 255, 50, 255)
-    love.graphics.rectangle("fill", bar.x + bar.offx, bar.y, bar.w*player.armor/player.armor_max ,bar.h)
+    love.graphics.rectangle("fill", bar.x + bar.offx, bar.y, bar.w*player.struct/player.struct_max ,bar.h)
  
     love.graphics.setColor(255, 55, 250, 50)
     love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy, bar.w, bar.h)
     love.graphics.setColor(255, 55, 250, 255)
-    love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy, bar.w*player.shield/player.shield_max, bar.h)
+    love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy, bar.w*player.energy/player.energy_max, bar.h)
+    love.graphics.setColor(100, 100, 100, 255)
+    love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy, bar.w*player.energy_occupied/player.energy_max, bar.h)
     love.graphics.setColor(255, 255, 0, 50)
     love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w, bar.h)
     love.graphics.setColor(255, 255, 0, 255)
     love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w*player.heat/player.heat_max,bar.h)
     love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.printf(string.format("%3d/%3d",player.armor,player.armor_max), bar.x + bar.offx , bar.y , bar.w,"center")
-    love.graphics.printf(string.format("%3d/%3d",player.shield,player.shield_max),bar.x + bar.offx , bar.y + bar.offy, bar.w,"center")
+    love.graphics.printf(string.format("%3d/%3d",player.struct,player.struct_max), bar.x + bar.offx , bar.y , bar.w,"center")
+    love.graphics.printf(string.format("%3d/%3d/%3d",player.energy_occupied,player.energy-player.energy_occupied,player.energy_max),bar.x + bar.offx , bar.y + bar.offy, bar.w,"center")
     love.graphics.printf(string.format("%3d/%3d",player.heat,player.heat_max),bar.x + bar.offx , bar.y + bar.offy*2, bar.w,"center")
 end
 
 function ui:drawMini()
+	if not self.ship.data.visual_radius then return end
 	local ship = self.ship
 	local mini = self.miniMap
-	local world_w = ship.data.visible_radius*2
+	local world_w = ship.data.visual_radius*2
 	local fire_ctrl_w = ship.data.fire_ctrl_radius
 	love.graphics.push()
 	love.graphics.setLineWidth(1)
@@ -164,7 +270,7 @@ function ui:drawMini()
 	love.graphics.setColor(255, 0, 0, 255)
 	
 	
-	for i,tar in ipairs(ship.data.visible_world) do
+	for i,tar in ipairs(ship.data.world.visual) do
 		local x,y = tar.x - ship.x, tar.y - ship.y
 		love.graphics.circle("fill", x*mini.w/world_w, y*mini.h/world_w, 2) 
 	end
@@ -186,8 +292,8 @@ function ui:drawShop()
 
 end
 
-function ui:statueShow()
-	local s = self.statue
+function ui:statusShow()
+	local s = self.status
 	
 	if suit.Button(s.title,s.x,s.y-s.h/10,s.w,s.h/10).hit then
 		self.currentWindow = nil
@@ -217,8 +323,8 @@ function ui:slotDraw(offx,offy,rot,index)
 	love.graphics.pop()
 end
 
-function ui:statueDraw()
-	local s = self.statue
+function ui:statusDraw()
+	local s = self.status
 	local ship = self.ship
 	local cx,cy = w()/2 - 5*unit, h()/2-5*unit
 	love.graphics.push()

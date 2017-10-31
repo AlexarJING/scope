@@ -27,6 +27,7 @@ function bullet:init(weapon,x,y,angle)
 	self.body:setLinearDamping(weapon.linearDamping)
 	self.through = weapon.through
 	self.target = weapon.target
+	self.state = "active"
 	game:addObject(self)
 end
 
@@ -98,7 +99,13 @@ function bullet:traceTarget()
     self:push()
     --if self.target and self.target.destroyed then self.target = nil end
     if not self.target then return end
-    local tx,ty = self.target.tx or self.target.x,self.target.ty or self.target.y
+    local tx,ty 
+    if self.target.vx then
+    	local t = self.target_dist/self.initVelocity 
+    	tx,ty = self.target.vx * t + self.target.x, self.target.vy * t +  self.target.y
+    else
+    	tx,ty = self.target.x , self.target.y
+    end 
 	local rot = math.unitAngle(math.getRot(self.x,self.y,tx,ty))
 	self.angle = math.unitAngle(self.angle)
     if rot>self.angle and math.abs(rot - self.angle)< math.pi or

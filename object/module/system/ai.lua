@@ -1,5 +1,5 @@
 local core = class("ai",obj.module.base)
-core.mod_type = "system"
+core.socket = "system"
 core.mod_name = "ai"
 function core:update(dt)
 	if self.ship.overheat then return end

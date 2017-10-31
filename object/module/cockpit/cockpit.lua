@@ -1,5 +1,5 @@
 local core = class("input",obj.module.base)
-core.mod_type = "system"
+core.socket = "cockpit"
 core.mod_name = "input"
 core.lockTime = 1
 function core:init(...)
@@ -54,6 +54,7 @@ function core:checkKey()
 end
 
 function core:checkMouse(dt)
+	if not game.hud then return end
 	local currentTarget
 	local callback = function(fixture)
     	local obj = fixture:getUserData()
@@ -63,9 +64,9 @@ function core:checkMouse(dt)
     	return false
 	end
 	local mx,my = game.hud.cam:toWorld(love.mouse.getPosition())
+    
     game.world:queryBoundingBox( mx-5, my-5, mx+5, my+5, callback )
     --if not currentTarget then return end
-
     if self.target and self.target.destroyed then
 		self.target = nil
 	end
@@ -83,8 +84,14 @@ function core:checkMouse(dt)
 
     self.ship.data.target = self.target
     if love.mouse.isDown(2) then
-    	self.ship.data.mouseX = mx
-    	self.ship.data.mouseY = my
+    	if self.ship.data.mouse then
+    		self.ship.data.mouse = {mx,my}
+    	else
+    		self.ship.data.mouse[1],self.ship.data.mouse[2] = mx,my
+    	end
+    	self.target = nil
+   	else
+   		self.ship.data.mouse = nil
     end
 end
 return core

@@ -14,7 +14,7 @@ theme.quad = love.graphics.newQuad(0, 0, w()-1, h()-1, w(), h())
 
 -- HELPER
 function theme.getColorForState(opt)
-	local s = opt.toggle or opt.state or "normal"
+	local s = (opt.state == "normal" and opt.toggle and "active") or opt.state or "normal"
 	return (opt.color and opt.color[opt.state]) or theme.color[s]
 end
 

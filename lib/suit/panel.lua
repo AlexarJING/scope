@@ -13,7 +13,7 @@ return function(core, ...)
     
 	w = w or 100
 	h = h or 100
-    opt.state = core:registerHitbox(opt.id, x,y,w,h)
+    --opt.state = core:registerHitbox(opt.id, x,y,w,h)
 	core:registerDraw(opt.draw or core.theme.Panel, opt, x,y,w,h)
 
 	return {
