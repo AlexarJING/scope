@@ -137,9 +137,33 @@ function mod:drawShip(ship)
 	end)
 end
 
+function mod:drawSlot(ship)
+	self.cam:draw(function()	
+	love.graphics.push()
+	love.graphics.translate(ship.x, ship.y)
+	love.graphics.rotate(ship.angle)	
+	for slot_type,slots in pairs(ship.slot) do
+		for i,slot in ipairs(slots) do
+			if slot.plugin and slot.plugin.socket == "weapon" then
+				love.graphics.push()
+				love.graphics.translate(slot.offx*ship.scale, slot.offy*ship.scale)
+				love.graphics.rotate(slot.plugin.rot)
+				love.graphics.setColor(250, 250, 250, 250)
+				love.graphics.circle("line", 0, 0, ship.scale/6)
+				love.graphics.rectangle("fill", -ship.scale/16,-ship.scale/2,ship.scale/8,ship.scale/2)
+				
+				love.graphics.pop()
+			end
+		end
+	end
+	love.graphics.pop()
+	end)
+end
+
 function mod:drawPlayer()
 	love.graphics.setColor(self.color_style.unit_player)
 	self:drawShip(self.ship)
+	self:drawSlot(self.ship)
 end
 
 
@@ -275,7 +299,7 @@ function mod:drawTarget()
 		end)
 	end
 	if self.ship.data.mouse then
-		local mx,my = self.ship.data.mouse[1],self.ship.data.mouse[2]
+		local mx,my = self.ship.data.mouse.x,self.ship.data.mouse.y
 		self.cam:draw(function() 
 		love.graphics.push()
 		love.graphics.setColor(0, 255, 0, 255)

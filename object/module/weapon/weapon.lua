@@ -67,6 +67,7 @@ function weapon:sync()
 	self.x = self.ship.x + x
 	self.y = self.ship.y + y
 	self.angle = self.ship.angle+self.slot.rot*Pi + self.rot
+	self.rot = math.unitAngle(self.rot)
 end
 
 
@@ -137,11 +138,11 @@ end
 
 function weapon:traceTarget(dt)
 	if not self.target then 
-		--if self.rot > 0 then
-		--	self.rot = self.rot - self.rotSpeed * dt
-		--else
-		--	self.rot = self.rot + self.rotSpeed * dt
-		--end
+		if self.rot > 0 then
+			self.rot = self.rot - self.rotSpeed * dt
+		else
+			self.rot = self.rot + self.rotSpeed * dt
+		end
 		return 
 	end
     local tx,ty

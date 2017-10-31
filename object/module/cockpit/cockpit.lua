@@ -85,9 +85,9 @@ function core:checkMouse(dt)
     self.ship.data.target = self.target
     if love.mouse.isDown(2) then
     	if self.ship.data.mouse then
-    		self.ship.data.mouse = {mx,my}
+    		self.ship.data.mouse.x,self.ship.data.mouse.y = mx,my
     	else
-    		self.ship.data.mouse[1],self.ship.data.mouse[2] = mx,my
+    		self.ship.data.mouse = {x=mx,y=my}
     	end
     	self.target = nil
    	else
