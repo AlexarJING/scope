@@ -34,6 +34,7 @@ function ship:init(...)
 	self:add_plugin(obj.module.radar.energy_radar,"universal",9)
 	self:add_plugin(obj.module.radar.fire_control_radar,"universal",10)
 	self:add_plugin(obj.module.system.shield,"universal",11)
+	self:add_plugin(obj.module.radar.analyse_radar,"universal",12)
 end
 
 return ship

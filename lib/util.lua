@@ -934,7 +934,34 @@ end
 
 local triangleBuffer = {}
 local vertsBuffer = {}
-function love.graphics.outlinePolygon(verts,scale)
+
+function love.graphics.anyPolygon(how,verts,scale)
+	scale = scale or 1
+	if not vertsBuffer[tostring(verts)..scale] then
+		local scaled = {}
+		for i,v in ipairs(verts) do
+			scaled[i] = v*scale
+		end
+		vertsBuffer[tostring(verts)..scale] = scaled
+	end
+
+	verts = vertsBuffer[tostring(verts)..scale]
+	
+	if how =="line" then
+		return love.graphics.polygon("line",verts)
+	end
+
+	if love.math.isConvex(verts) then 
+		love.graphics.polygon("fill", verts)
+	else
+		triangleBuffer[verts] = triangleBuffer[verts] or love.math.triangulate(verts)		
+		for i,tri in ipairs(triangleBuffer[verts]) do
+			love.graphics.polygon("fill", tri)
+		end
+	end
+end
+
+function love.graphics.outlinePolygon(verts,scale,colorFill,colorLine)
 	if not vertsBuffer[tostring(verts)..scale] then
 		local scaled = {}
 		for i,v in ipairs(verts) do
@@ -945,7 +972,11 @@ function love.graphics.outlinePolygon(verts,scale)
 
 	verts = vertsBuffer[tostring(verts)..scale]
 	local r, g, b, a = love.graphics.getColor()
-	love.graphics.setColor(r, g, b, a/3)
+	if colorFill then 
+		love.graphics.setColor(colorFill)
+	else	
+		love.graphics.setColor(r, g, b, a/3)
+	end
 	if love.math.isConvex(verts) then 
 		love.graphics.polygon("fill", verts)
 	else
@@ -954,10 +985,15 @@ function love.graphics.outlinePolygon(verts,scale)
 			love.graphics.polygon("fill", tri)
 		end
 	end
-	love.graphics.setColor(r, g, b, a)
-	love.graphics.setLineWidth(3)
+	if colorLine then
+		love.graphics.setColor(colorLine)
+	else
+		love.graphics.setColor(r, g, b, a)
+	end
+	--love.graphics.setLineWidth(1)
 	love.graphics.line( verts)
 	love.graphics.polygon("line", verts)
+
 end
 
 

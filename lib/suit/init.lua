@@ -46,6 +46,9 @@ return setmetatable({
 	Input = function(...) return instance:Input(...) end,
 	Slider = function(...) return instance:Slider(...) end,
 	Panel = function(...) return instance:Panel(...) end,
+	--combos
+	Frame = function(...) return instance:Frame(...) end,
+	List = function(...) return instance:List(...) end,
 
 	-- layout
 	layout = instance.layout

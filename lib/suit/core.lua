@@ -23,7 +23,9 @@ function suit.new(theme)
 		Input = require(BASE.."input"),
 		Slider = require(BASE.."slider"),
 		Panel = require (BASE.."panel"),
-
+		Frame = require (BASE .. "frame"),
+		List = require (BASE .. "list"),
+		
 		layout = require(BASE.."layout").new(),
 	}, suit)
 end

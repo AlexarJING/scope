@@ -94,8 +94,8 @@ end
 
 function ship:exhaust()
 	if self.state == "active" then 
-		self.state ="exhausted"
 		game.hud:makeExplosion(self)
+		self.state ="exhausted"
 		delay:new(10,function() self:destroy() end)
 	end
 end
@@ -177,7 +177,7 @@ function ship:damage(damage_point,damage_type)
 	end
 	self.struct = self.struct - damage_point
 
-	if self.struct<0 then self:exhaust()end
+	if self.struct<=0 then self:exhaust()end
 
 	if damage_type == "structure" then
 

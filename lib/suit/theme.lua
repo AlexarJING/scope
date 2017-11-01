@@ -18,6 +18,7 @@ function theme.getColorForState(opt)
 	return (opt.color and opt.color[opt.state]) or theme.color[s]
 end
 
+
 function theme.drawBox(x,y,w,h, colors, cornerRadius)
 	local colors = colors or theme.getColorForState(opt)
 	cornerRadius = cornerRadius or theme.cornerRadius
@@ -33,8 +34,27 @@ function theme.drawBox(x,y,w,h, colors, cornerRadius)
 	love.graphics.rectangle('fill', x,y, w,h, cornerRadius)
 	love.graphics.setColor(colors.fg)
 	love.graphics.rectangle('line', x,y, w,h, cornerRadius)
-
 end
+
+
+
+function theme.drawPolygon(polygon,colors) 
+	local colors = colors or theme.getColorForState(opt)
+	local function myStencilFunction()
+		love.graphics.anyPolygon("fill",polygon)
+	end
+	love.graphics.stencil(myStencilFunction,"replace",1)
+	love.graphics.setStencilTest("equal", 1)
+	love.graphics.setBlendMode("replace")
+	love.graphics.draw(theme.bgTexture)
+
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setLineWidth(3)
+	love.graphics.outlinePolygon(polygon,1,colors.bg,colors.fg)
+	love.graphics.setLineWidth(1)
+	love.graphics.setStencilTest()
+end
+
 
 function theme.getVerticalOffsetForAlign(valign, font, h)
 	if valign == "top" then
@@ -57,8 +77,11 @@ end
 
 function theme.Button(text, opt, x,y,w,h)
 	local c = theme.getColorForState(opt)
-
-	theme.drawBox(x,y,w,h, c, opt.cornerRadius)
+	if opt.polygon then
+		theme.drawPolygon(opt.polygon,c)
+	else
+		theme.drawBox(x,y,w,h, c, opt.cornerRadius)
+	end
 	love.graphics.setColor(c.fg)
 	love.graphics.setFont(opt.font)
 

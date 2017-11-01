@@ -91,7 +91,7 @@ function mod:draw()
 	self:drawPlayer()
 	self:drawEnergyWorld()
 	self:drawFireCtrl()
-	--self:drawAnalyser()
+	self:drawAnalyser()
 	self:drawTarget()
 	love.graphics.setCanvas()
 	love.graphics.setCanvas(self.diffused)
@@ -262,7 +262,7 @@ function mod:drawAnalyser()
 	self.cam:draw(function()
 	love.graphics.setLineWidth(1)	
 	for i , ship in ipairs(world) do
-		if ship.tag == "ship" and self.ship:inScreen(ship) then
+		if ship.tag == "ship" and self.ship:inScreen(ship) and ship.state == "active" then
 			love.graphics.setColor(50, 255, 50, 50)
 			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-20, ship.scale*2, 5)
 			love.graphics.setColor(50, 255, 50, 255)
@@ -315,20 +315,8 @@ function mod:drawTarget()
 end
 --x,y,angle,verts,scale,color
 function mod:makeExplosion(t)
-	game.hud.cam:shake()
-	local color
-
-	if t.team ==1 then --player
-		color = self.color_style.unit_player
-	elseif t.team>1 then--friend
-		color = self.color_style.unit_friend
-	elseif t.team == 0 then  --neutral
-		color = self.color_style.unit_neutral
-	else -- team<0 enemy
-		color = self.color_style.unit_enemy
-	end	
-	--print(t.x,t.y,t.angle,t.verts,t.scale,color)
-	self.explosion:add(t.x,t.y,t.angle,t.verts,t.scale,color)
+	game.hud.cam:shake()	
+	self.explosion:add(t.x,t.y,t.angle,t.verts,t.scale,self:getColor(t))
 end
 
 function mod:setZoom(d)
