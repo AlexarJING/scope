@@ -16,27 +16,24 @@ function actions:init(ui)
 end
 
 function actions:update(dt)
-	local count = 0
-	local mods = {}
-	for socket, tab in pairs(self.ship.slot) do
-		for i, slot in ipairs(tab) do
-			count = count + 1
-			local tab = {
-				slot = slot,
-				socket = socket,
-				mod = slot.plugin,
-				enabled = slot.enabled,
-			}
-			if tab.mod then
-				tab.name = tab.mod.mod_name
-				tab.timer = tab.mod.cd_timer
-				tab.cd = tab.mod.cool_down
-			else
-				tab.name = "not used"
-			end
-			mods[count] = tab
+	local mods = {}	
+	for i, slot in ipairs(self.ship.slot) do
+		local tab = {
+			slot = slot,
+			socket = slot.socket,
+			mod = slot.plugin,
+			enabled = slot.enabled,
+		}
+		if tab.mod then
+			tab.name = tab.mod.mod_name
+			tab.timer = tab.mod.cd_timer
+			tab.cd = tab.mod.cool_down
+		else
+			tab.name = "not used"
 		end
-	end
+		mods[i] = tab
+		end
+	
 	self.mods = mods
 	if #mods<13 then
 		suit.Panel(self.x,self.y,self.w,self.h)

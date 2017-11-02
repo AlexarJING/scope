@@ -16,7 +16,14 @@ local function loadMod(socket)
 	loadDir(dir,obj.module[socket])
 end
 
-
+local function loadDataShip(data,base)
+	local cls = class(data.name,base)
+	for k,v in pairs(data) do
+		cls[k] = v
+	end
+	
+	return cls
+end
 
 obj.others = loadDir("object/others/")
 
@@ -32,3 +39,8 @@ obj.ship.base = require "object/ship/base"
 obj.ship.player = require "object/ship/player"
 obj.ship.npc = require "object/ship/npc"
 --loadDir("object/ship/",obj.ship)
+
+
+local conf = require "data/ship/test"
+
+obj.ship[conf.name]= loadDataShip(conf,obj.ship.base)

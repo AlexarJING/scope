@@ -1,6 +1,6 @@
-local check = {}
+local dock = {}
 local unit
-function check:init(ui,menu)
+function dock:init(ui,menu)
 	self.ui = ui
 	self.ship = ui.ship
 	self.hud = ui.hud
@@ -9,13 +9,14 @@ function check:init(ui,menu)
 	unit = self.ui.unit
 
 	self.frame = {
-		title = "self checking",
-		x = w()/2-500, 
+		title = "space dockyard No.123123",
+		x = w()/2-70*unit, 
 		y = h()/2-250, 
-		w = 1000,
+		w = 140*unit ,
 		h = 400,
 		buttons = {
 		{text = "close"},
+		{text = "install"}
 		}
 	}
 
@@ -48,14 +49,15 @@ function check:init(ui,menu)
 		title = "modules",
 		x = self.frame.x + 70*unit,
 		y = self.frame.y + unit,
-		w = self.frame.w - 71*unit,
+		w = 34*unit,
 		h = self.frame.h - 2*unit,
 		item_height = 60,
 		item_type = "button",
 		items = {},
 		slots = {},
 	}
-
+	
+	
 	for i, slot in ipairs(self.ship.slot) do
 		self.slot_show.slots[i] = slot 
 		if slot.plugin then
@@ -64,11 +66,28 @@ function check:init(ui,menu)
 			self.slot_show.items[i] = {i.." ".."not used"}
 		end
 	end
+	
+
+
+	self.item_show = {
+		title = "stockage",
+		x = self.frame.x + 105*unit,
+		y = self.frame.y + unit,
+		w = 34*unit,
+		h = self.frame.h - 2*unit,
+		item_height = 60,
+		item_type = "button",
+		items = {},
+	}
+
+	for i = 1,30 do
+		self.item_show.items[i] = {"item test"..i}
+	end
 
 	return self
 end
 
-function check:update(dt)
+function dock:update(dt)
 
 	
 
@@ -97,13 +116,16 @@ function check:update(dt)
 			--self.desc_list.items[1][1] = 
 		end
 	end
+
+	local item = self.item_show
+	suit.List(item.title,item,item.x, item.y, item.w,item.h)
 end
 
 
 local slot_size = 30
 
 
-function check:draw()
+function dock:draw()
 	local show = self.ship_show
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.push()
@@ -135,15 +157,4 @@ function check:draw()
 end
 
 
-return check
-
-
-
---[[
-self.shop = {x = w()/2-40*unit, y = h()/2-30*unit, w = 80*unit, h = 45*unit, title = "xxxx trading center",bw = unit*10,bh = unit*4}
-	--"status,stockage,message,event,exchange,dockyard,"
-	
-	self.status = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
-		 title = "xxxx ship status",bw = unit*10,bh = unit*4}
-	self.stockage = {x = w()/2-40*unit, y = h()/2-28*unit, w = 80*unit, h = 45*unit,
-		 title = "xxxx ship stockage",info = {min = 0,max = 10,step = 1,value = 0,vertical=true},}]]
+return dock

@@ -68,6 +68,12 @@ end
 
 -- WIDGET VIEWS
 function theme.Label(text, opt, x,y,w,h)
+	local c = theme.getColorForState(opt)
+	if opt.polygon then
+		theme.drawPolygon(opt.polygon,c)
+	else
+		theme.drawBox(x,y,w,h, c, opt.cornerRadius)
+	end
 	y = y + theme.getVerticalOffsetForAlign(opt.valign, opt.font, h)
 
 	love.graphics.setColor((opt.color and opt.color.normal or {}).fg or theme.color.normal.fg)

@@ -156,3 +156,10 @@ module一些大的调整，ui已经跟module连接了，并能显示module的cd
 增加了shield的显示
 调整了一些ship.data内容
 增加了程序结构.vsd
+
+
+2017/11/2
+ui结构大幅度调整，完成了一些基本框架 包括frame,list等
+加入了i18n模块，多语言化调整
+ship.slot现在为单一层级结构了。用socket属性来区别
+加入通过配置文件来生成class的模块

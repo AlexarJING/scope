@@ -7,6 +7,7 @@ local vertBuff = {}
 local k = 50
 local p = 20
 local bw = 100
+local buffindex = 0
 
 return function(core,title, ...)
 	local Panel = core.Panel
@@ -17,11 +18,14 @@ return function(core,title, ...)
 	local tw = love.graphics.getFont():getWidth(title)
 	local th = love.graphics.getFont():getHeight(title)+p
 	core:Panel(x,y,w,h)
-	
-	local verts = vertBuff[title] or {x+k-p ,y-th, x+k + tw +p , y-th, x+tw+2*k,y, x,y}
-	vertBuff[title] = verts
-	
-	local titleButton = core:Button(title,{polygon =verts },x,y-th,tw+k*2,th)
+
+	local verts = vertBuff[title..buffindex]
+	if not verts then
+		verts = {x+k-p ,y-th, x+k + tw +p , y-th, x+tw+2*k,y, x,y}
+		buffindex = buffindex + 1
+		vertBuff[title..buffindex] = verts
+	end
+	local titleButton = core:Label(title,{polygon =verts,disabled = true },x,y-th,tw+k*2,th)
 
 	local buttons = opt.buttons
 	for i,b in ipairs(buttons) do
@@ -29,18 +33,15 @@ return function(core,title, ...)
 		local by = y+h
 		local up = 2*p+bw
 		local down = bw
-		local verts = vertBuff[i..tostring(button)] or {
+		local verts = vertBuff[i..title..tostring(button)] or {
 			bx,by,
 			bx+up,by,
 			bx+p+bw,by+th,
 			bx+p,by+th,
 		}
-		vertBuff[i..tostring(button)] = verts
+		vertBuff[i..title..tostring(button)] = verts
 		b.reply = core:Button(b.text,{polygon = verts},bx,by,up,th)
 	end
-	--opt.state = core:registerHitbox(opt.id, x,y,w,h)
-	
-	--core:registerDraw(draw or opt.draw or core.theme.Button, text, opt, x,y,w,h)
 
 	return {
 		id = opt.id,

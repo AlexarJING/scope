@@ -11,36 +11,16 @@ function menu:init(ui)
 	self.popButton = {txt = "<",x = 10,y = 10, w = 2*unit, h =4*unit}
 	self.mainMenu = {ox = -w(), tx = 5*unit, cx = 20+2*unit, y = 10,bw = 10*unit,bh = 4*unit}
 	self.currentWindow = nil
-	--[[
+	
 	self.windows = {
-	selfcheck = require("scr/ui_elements/selfcheck"):init(menu),
-	stockage = require("scr/ui_elements/selfcheck"):init(menu),
-	message = require("scr/ui_elements/selfcheck"):init(menu),
-	logbook = require("scr/ui_elements/selfcheck"):init(menu),
-	exchange = require("scr/ui_elements/selfcheck"):init(menu),
-	dockyard = require("scr/ui_elements/selfcheck"):init(menu),
-	}]]
-	self.buttons = {
-		buttons = {
-		{text = "close"},
-		{text = "buy"}}
+	selfcheck = require("scr/ui_elements/selfcheck"):init(ui,menu),
+	stockage = require("scr/ui_elements/stockage"):init(ui,menu),
+	message = require("scr/ui_elements/message"):init(ui,menu),
+	logbook = require("scr/ui_elements/logbook"):init(ui,menu),
+	exchange = require("scr/ui_elements/exchange"):init(ui,menu),
+	dockyard = require("scr/ui_elements/dockyard"):init(ui,menu),
 	}
-
-	self.items = {
-		{"test 1"},
-		{"test 2"},
-		{"test 3"},
-		{"test 4"},
-		{"test 5"},
-		{"test 6"},
-		{"test 7"},
-		{"test 8"},
-	}
-
-	self.list = {
-		item_height = 100,
-		items = self.items
-	}
+	
 	return self
 end
 
@@ -49,8 +29,8 @@ function menu:update(dt)
 	local main = self.mainMenu
 	--tx = 20+2*unit
 	for i = 1, 6 do
-		if suit.Button(self.windowName[i],main.cx+(i-1)*(main.bw+unit),main.y,main.bw,main.bh).hit then
-			self.currentWindow = menu.buttons[i]
+		if suit.Button(lang[self.windowName[i]],main.cx+(i-1)*(main.bw+unit),main.y,main.bw,main.bh).hit then
+			self.currentWindow = menu.windows[self.windowName[i]]
 		end
 	end
 	local pop = self.popButton
@@ -68,15 +48,16 @@ function menu:update(dt)
 	--frame.update({title = "xxxxxxxxxxxxxx trading center xxxxxxxxxxxxxx",x = w()/2-400,y = h()/2-250,w = 800, h = 400})
 	
 	
-
-	suit.Frame("trading center No.10231",self.buttons,w()/2-400, h()/2-250, 800,400)
-
-	suit.List("test",self.list,300,100,400,500)
+	if self.currentWindow then
+		self.currentWindow:update(dt)
+	end
 	
 end
 
 function menu:draw()
-
+	if self.currentWindow then
+		self.currentWindow:draw()
+	end
 end
 
 return menu

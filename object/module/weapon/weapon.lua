@@ -17,7 +17,7 @@ weapon.autoFireRange =  1300 --自动开火范围
 weapon.autoTarget = true --自动寻的(武器自转)
 weapon.target_type = "ship" --寻的类型 ship/bullet/all
 weapon.rotSpeed = Pi--旋转速度 弧度/s
-weapon.rotLimit = Pi --单侧旋转角度限制
+weapon.rotLimit = Pi/4 --单侧旋转角度限制
 
 
 weapon.bullet = obj.others.bullet --放出子弹类型 bullet/missile/decoy(分散放出型，诱使武器自爆)
@@ -138,9 +138,9 @@ end
 
 function weapon:traceTarget(dt)
 	if not self.target then 
-		if self.rot > 0 then
+		if self.rot > 0.1 then
 			self.rot = self.rot - self.rotSpeed * dt
-		else
+		elseif self.rot < -0.1 then
 			self.rot = self.rot + self.rotSpeed * dt
 		end
 		return 

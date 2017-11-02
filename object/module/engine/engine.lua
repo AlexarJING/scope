@@ -2,7 +2,7 @@ local engine = class("engine",obj.module.base)
 engine.sidePower = 50
 engine.turnPower = 150
 engine.pushPower = 50
-engine.heat_per_sec = 10
+engine.heat_per_sec = 1
 engine.mod_name = "pareto"
 engine.socket = "engine"
 

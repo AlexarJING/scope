@@ -1,6 +1,4 @@
---require "scr/randomName"
-__TESTING = true
---__CONSOLE = true
+__TESTING = false
 local path = "/"
 require (path.."lib/util")
 class=require (path.."lib/middleclass")
@@ -10,9 +8,12 @@ tween = require (path.."lib/tween")
 Anim = require (path.."lib/animation")
 suit = require "lib/suit"
 Camera = require "lib/gamera"
+
+Language = "cn"
+lang = require "scr/i18n"
 require "scr/objLoader"
 Game = require "scr/game"
-
+DebugDraw = require "lib/debugDraw"
 function love.load()
     --love.graphics.setBackgroundColor(50,50,150)
     gameState={}

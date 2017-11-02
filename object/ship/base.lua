@@ -5,28 +5,25 @@ ship.heat_max = 100
 ship.cool_down_effect = 50
 ship.energy_generate_effect = 100
 ship.tag = "ship"
+ship.scale = 30
+ship.mass = 2000
+
 ship.slot = {
-	cockpit = {
-		{offx = 0,offy = 0,rot = 0,enabled = true}
-	},
-	weapon = {	
-		{offx = 0, offy = -0.8, rot = 0,enabled = true},
-	},
-	engine = {
-		{offx = 0, offy = 0.5, rot = 1,enabled = true},
-	},
-	hud = {
-		{offx = 0, offy = 0.5, rot = 1,enabled = true}
-	},
-	radar = {
-		{offx = 0, offy = 0.5, rot = 1,enabled = true}
-	},
-	system = {
-		{offx = 0,offy = 0,rot = 0,enabled = true}
-	},
-	universal = {
-		{offx = 0,offy = 0,rot = 0,enabled = true}
-	}
+	{socket = "cokpit",offx = 0,offy = 0,rot = 0,enabled = true},
+	{socket = "weapon",offx = 0, offy = -0.8, rot = 0,enabled = true},
+	{socket = "engine",offx = 0, offy = 0.5, rot = 1,enabled = true},
+	{socket = "hud",offx = 0, offy = 0.5, rot = 1,enabled = true},
+	{socket = "radar",offx = 0, offy = 0.5, rot = 1,enabled = true},
+	{socket = "system",offx = 0,offy = 0,rot = 0,enabled = true},
+	{socket = "univeral",offx = 0,offy = 0,rot = 0,enabled = true}
+}
+
+ship.mod_conf = {
+	
+}
+
+ship.stock = {
+	
 }
 
 ship.linearDamping = 0.5
@@ -37,16 +34,13 @@ ship.verts = {
 }
 
 
-function ship:init(team,x,y,scale,rotation)
+function ship:init(team,x,y,rotation)
 	self.team =team
 	self.x = x
 	self.y = y
-	self.scale = scale or 30
-	self.angle = 0
-	self.shape = love.physics.newCircleShape(0,0,self.scale)
-	self.body = love.physics.newBody(game.world, x, y, "dynamic")
-	self.fixture = love.physics.newFixture(self.body, self.shape,0.1)
-	self.fixture:setUserData(self)
+	self.scale = self.scale
+	self.angle = rotation or 0
+	self:physicInit()
 	self.struct = 10
 	self.energy = 10
 	self.heat = 0
@@ -62,8 +56,39 @@ function ship:init(team,x,y,scale,rotation)
 
 	}
 	game:addObject(self)
-
+	self:resetSlots()
+	for k,v in pairs(self.mod_conf) do
+		self:add_plugin(v,k)
+	end
 end
+
+function ship:physicInit()
+	--self.shape = love.physics.newCircleShape(0,0,self.scale)
+	local x = self.x
+	local y = self.y
+	self.body = love.physics.newBody(game.world, x, y, "dynamic")
+	self.fixtures = {}
+	
+	local test ,triangles =pcall(love.math.triangulate,self.verts )
+	if not test then return end
+	local points={}
+	local mainFixture
+	for i,triangle in ipairs(triangles) do
+		local verts=math.polygonTrans(0, 0,0,self.scale,triangle)
+		local test ,shape = pcall(love.physics.newPolygonShape,verts)
+		if test then
+			local fixture = love.physics.newFixture(self.body, shape,0.2)
+			if i==1 then
+				self.fixture = fixture
+			end
+			self.fixtures[i] = fixture
+			fixture:setUserData(self)
+		end
+	end
+	self.body:setAngle(self.angle)
+	self.body:setMass(self.mass/10000)
+end
+
 
 function ship:energy_ctrl(dt)
 	self.energy_occupied = 0
@@ -123,22 +148,18 @@ function ship:sync()
 end
 
 function ship:slot_update(dt)
-
-	for socket, tab in pairs(self.slot) do
-		for i, slot in ipairs(tab) do
-			if slot.enabled and slot.plugin then
-				slot.plugin:update(dt)
-			end
+	for i, slot in ipairs(self.slot) do
+		if slot.enabled and slot.plugin then
+			slot.plugin:update(dt)
 		end
 	end
-
 end
 
 
 
-function ship:add_plugin(plugin,socket,position)
-	local slot = self.slot[socket][position] 
-	if slot and (plugin.socket == socket or socket == "universal") and slot.plugin == nil then
+function ship:add_plugin(plugin,position)
+	local slot = self.slot[position] 
+	if slot and (plugin.socket == slot.socket or slot.socket == "universal") and slot.plugin == nil then
 		slot.plugin = plugin(self,slot)
 	end
 end

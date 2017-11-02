@@ -1,6 +1,6 @@
 local game = class("game")
 local collision =  require ("scr/collide")
-
+local font = love.graphics.setNewFont("res/cn.ttf",14)
 function game:init()
     self.world = love.physics.newWorld(0, 0, false)
     self.world:setCallbacks(collision.begin,collision.leave,collision.pre,collision.post)
@@ -12,11 +12,11 @@ end
 function game:start()
     
     for i = 1, 10 do
-        obj.ship.npc(2,love.math.random(-500,500),
-            love.math.random(-500,500),30,love.math.random()*2*Pi)
+        obj.ship.npc(-1,love.math.random(-500,500),
+            love.math.random(-500,500),love.math.random()*2*Pi)
     end
     --obj.ship.boss(2,1500,-1500)
-    self.player = obj.ship.player(1,0,0,30)
+    self.player = obj.ship.test(1,0,0,30)
 end
 
 function game:update(dt)
@@ -36,11 +36,14 @@ end
 
 function game:draw()
     if self.hud then self.hud:draw() end
-    --[[
-    love.graphics.setColor(255,0,0)
-        debugDraw.draw(self.world) --物理世界debug
-    end)  
-    ]]   
+    if __TESTING then
+        self.hud.cam:draw(function()
+    
+        love.graphics.setColor(255,0,0)
+            DebugDraw.draw(self.world) --物理世界debug
+        end) 
+    end
+ 
 end
 
 

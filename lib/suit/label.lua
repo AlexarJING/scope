@@ -10,14 +10,21 @@ return function(core, text, ...)
 	w = w or opt.font:getWidth(text) + 4
 	h = h or opt.font:getHeight() + 4
 
-	opt.state = core:registerHitbox(opt.id, x,y,w,h)
-	core:registerDraw(opt.draw or core.theme.Label, text, opt, x,y,w,h)
-
+	--opt.state = core:registerHitbox(opt.id, x,y,w,h)
+	if opt.nodraw then
+		drawFunc = function()  
+			local draw = opt.draw or core.theme.Label
+			draw(text, opt, x,y,w,h)
+		end
+	else
+		core:registerDraw(opt.draw or core.theme.Label, text, opt, x,y,w,h)
+	end
 	return {
 		id = opt.id,
 		hit = core:mouseReleasedOn(opt.id),
 		hovered = core:isHovered(opt.id),
 		entered = core:isHovered(opt.id) and not core:wasHovered(opt.id),
-		left = not core:isHovered(opt.id) and core:wasHovered(opt.id)
+		left = not core:isHovered(opt.id) and core:wasHovered(opt.id),
+		draw = drawFunc
 	}
 end

@@ -33,7 +33,7 @@ local randomWord = function()
 	end
 end
 
-local function randomSentence()
+function randomSentence()
 	local len = love.math.random(5,12)
 	local sentence = ""
 	for i = 1,len do
@@ -43,4 +43,6 @@ local function randomSentence()
 	return sentence
 end
 
-return randomWord,randomSentence
+for i = 1,10 do
+	print(randomSentence())
+end

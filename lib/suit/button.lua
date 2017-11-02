@@ -9,8 +9,9 @@ return function(core, text, ...)
 
 	w = w or opt.font:getWidth(text) + 4
 	h = h or opt.font:getHeight() + 4
-
-	opt.state = core:registerHitbox(opt.id, x,y,w,h)
+	if not opt.disabled then
+		opt.state = core:registerHitbox(opt.id, x,y,w,h)
+	end
 	local drawFunc
 	if opt.nodraw then 
 		drawFunc = function()  

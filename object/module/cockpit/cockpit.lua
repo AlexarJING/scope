@@ -2,6 +2,8 @@ local core = class("input",obj.module.base)
 core.socket = "cockpit"
 core.mod_name = "input"
 core.lockTime = 1
+local key = require "scr/key_conf"
+
 function core:init(...)
 	obj.module.base.init(self,...)
 	self.lockTimer = 0
@@ -16,33 +18,33 @@ function core:checkKey()
 	
 	local action = {}
 	if not self.ship.overheat then  
-		if love.keyboard.isDown("w") then
+		if love.keyboard.isDown(key.up) then
 			action.push = 1
-		elseif love.keyboard.isDown("s") then
+		elseif love.keyboard.isDown(key.down) then
 			action.push = -1
 		end
 
-		if love.keyboard.isDown("a") then
+		if love.keyboard.isDown(key.left) then
 			action.turn = 1
-		elseif love.keyboard.isDown("d") then
+		elseif love.keyboard.isDown(key.right) then
 			action.turn = -1
 		end
 
-		if love.keyboard.isDown("q") then
+		if love.keyboard.isDown(key.leftUp) then
 			action.side = 1
-		elseif love.keyboard.isDown("e") then
+		elseif love.keyboard.isDown(key.rightUp) then
 			action.side = -1
 		end 
 
-		if love.keyboard.isDown("c") then
+		if love.keyboard.isDown(key.stop) then
 			action.stop = true
 		end
 
-		if love.keyboard.isDown("space") then
+		if love.keyboard.isDown(key.fire) then
 			action.fire = true
 		end
 
-		if love.keyboard.isDown("lshift") then
+		if love.keyboard.isDown(key.shield) then
 			action.shield = true
 		end
 

@@ -51,12 +51,12 @@ function status:draw()
 	
 	love.graphics.pop()
 
-	love.graphics.printf(string.format("coord: %2d,%2d",ship.obj.x,ship.obj.y),ship.x,ship.y+ship.h+unit,ship.w+unit*3,"center")
-	love.graphics.printf(string.format("speed: %2d,%2d",vx,vy),ship.x + ship.w+unit*5,ship.y+ship.h+unit,ship.w+unit*3,"center")
+	love.graphics.printf(string.format(lang.coord..": %2d,%2d",ship.obj.x,ship.obj.y),ship.x,ship.y+ship.h+unit,ship.w+unit*3,"center")
+	love.graphics.printf(string.format(lang.speed..": %2d,%2d",vx,vy),ship.x + ship.w+unit*5,ship.y+ship.h+unit,ship.w+unit*3,"center")
 	local bar = self.bar
-	love.graphics.print("struct", bar.x,bar.y )
-	love.graphics.print("energy", bar.x,bar.y + bar.offy )
-	love.graphics.print("heat", bar.x,bar.y + bar.offy*2)
+	love.graphics.print(lang.struct, bar.x,bar.y )
+	love.graphics.print(lang.energy, bar.x,bar.y + bar.offy )
+	love.graphics.print(lang.heat, bar.x,bar.y + bar.offy*2)
 
 	local player = self.ship
     love.graphics.setColor(50, 255, 50, 50)
