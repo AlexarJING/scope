@@ -7,5 +7,7 @@ return {
 	rightUp = "e",
 	fire = "space",
 	stop = "c",
-	shield = "lshift"
+	shield = "lshift",
+	teleport = "t",
+	aim = 1,
 }

@@ -1,13 +1,16 @@
 local weapon = class("weapon",obj.module.base)
 weapon.socket = "weapon"
 weapon.mod_name = "hell fire"
-weapon.energy_occupy = 10
-weapon.heat_produce = 0
+weapon.heat_produce = 15
+weapon.heat_radiating = 30
+weapon.heat_volume = 100
+weapon.heat_per_sec = 0
 
-weapon.cool_down = 3 --发射间隔
+
+weapon.cool_down = 0.2 --发射间隔
 weapon.chargeTime = 0 --充能时间
-weapon.heat_per_shot = 1 --单次发射的热量
-
+weapon.heat_per_shot = 10 --单次发射的热量
+weapon.heat_radiating = 5
 weapon.fire_count = 1 --单次发射的子弹量
 weapon.fire_offset = 0 --子弹的旋转偏移（可模拟子弹不精确，或随机子弹角度）
 
@@ -21,7 +24,7 @@ weapon.rotLimit = Pi/4 --单侧旋转角度限制
 
 
 weapon.bullet = obj.others.bullet --放出子弹类型 bullet/missile/decoy(分散放出型，诱使武器自爆)
-weapon.hp = 1
+weapon.struct = 1
 weapon.scale = 10 --子弹碰撞大小
 weapon.activeTime = 1 --子弹存活时间
 weapon.activeRange = 500 --有效射程
@@ -35,12 +38,12 @@ weapon.damage_type = "structure"--伤害类型 structure/energy/quantum(质子�
 weapon.damage_point = 5
 weapon.explosion_range = 0 --碰撞后伤害半径如为0则单体伤害
 weapon.through = 0 --碰撞后穿透 层数3 0为不穿透
-
+weapon.bullet_tag = "bullet"
 weapon.drawTarget = true 
 weapon.drawRange = true
 
 weapon.verts = {
-	
+	0,-0.5,0.3,0.3,-0.3,0.3
 }
 function weapon:init(...)
 	obj.module.base.init(self,...)
@@ -123,13 +126,14 @@ function weapon:fireControl(dt)
 		((self.target and self.autoFire) or 
 		(not self.autoFire and self.ship.data.action.fire))  then
 			self.charge_timer =  self.charge_timer - dt
-			if self.charge_timer<=0 then
+			if self.charge_timer<=0 and self:produceHeatPerTime(self.fire_count) then
 				self.cd_timer = self.cool_down
-				self.ship.heat = self.ship.heat + self.heat_per_shot
+				
 				for i = 1,self.fire_count do
 					self.bullet(self,self.x,self.y,
 						self.angle-love.math.random()*self.fire_offset*2+self.fire_offset)
 				end
+				
 			end
 	else
 		self.charge_timer = self.chargeTime
@@ -167,13 +171,6 @@ function weapon:traceTarget(dt)
 	if self.rot < - self.rotLimit then
 		self.rot = - self.rotLimit
 	end
-end
-
-function weapon:draw()
-	
-	love.graphics.setColor(0, 255, 0, 20)
-	love.graphics.arc("fill", 0, 0, self.autoFireRange, -self.rotLimit-Pi/2, self.rotLimit-Pi/2)
-	
 end
 
 

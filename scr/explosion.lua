@@ -7,7 +7,7 @@ function exp:init()
 end
 
 function exp:add(x,y,angle,verts,scale,color)
-
+	color = color or {love.graphics.getColor()}
 	local verts = math.polygonTrans(x,y,angle,scale,verts)
 	for i = 1, #verts,2 do
 		local line = {

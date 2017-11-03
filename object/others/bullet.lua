@@ -1,11 +1,8 @@
 local bullet = class("bullet")
-bullet.tag = "bullet"
-bullet.verts = {
-	0,-0.5,0.3,0.3,-0.3,0.3
-}
 
 function bullet:init(weapon,x,y,angle)
 	self.weapon = weapon
+	self.verts = self.weapon.verts
 	self.ship = weapon.ship
 	self.team = self.ship.team
 	self.ox,self.oy = self.ship.x,self.ship.y
@@ -28,6 +25,8 @@ function bullet:init(weapon,x,y,angle)
 	self.through = weapon.through
 	self.target = weapon.target
 	self.state = "active"
+	self.tag = weapon.bullet_tag
+	self.struct = self.weapon.struct
 	game:addObject(self)
 end
 
@@ -59,6 +58,7 @@ end
 function bullet:destroy()
 	self.destroyed = true
 	self.body:destroy()
+	game.hud.explosion:add(self.x,self.y,self.angle,self.verts,self.scale,game.hud:getColor(self))
 	--[[
 	if self.weapon.explosion_range~=0 then
 		obj.others.explosion(self.x,self.y,self.weapon.explosion_range)
@@ -84,14 +84,22 @@ function bullet:push(a)
 	local dt = love.timer.getDelta()
 	self.body:applyLinearImpulse(a *self.weapon.pushPower*math.sin(self.angle)*dt,
 		-a*self.weapon.pushPower*math.cos(self.angle)*dt)
-	self.heat = self.heat * self.weapon.heat_generate* love.timer.getDelta()
+	self.heat = self.heat * self.weapon.bullet_heat_generate* love.timer.getDelta()
 end
 
 function bullet:turn(a)
 	a = a or 1
 	local dt = love.timer.getDelta()
 	self.body:applyAngularImpulse(-a*self.weapon.turnPower*dt)
-	self.heat = self.heat * self.weapon.heat_generate* love.timer.getDelta()
+	self.heat = self.heat * self.weapon.bullet_heat_generate* love.timer.getDelta()
+end
+
+function bullet:getVelocity()
+	return math.getDistance(0,0,self.body:getLinearVelocity())
+end
+
+function bullet:getTargetDist()
+	return math.getDistance(self.x,self.y,self.target.x,self.target.y)
 end
 
 function bullet:traceTarget()
@@ -101,7 +109,7 @@ function bullet:traceTarget()
     if not self.target then return end
     local tx,ty 
     if self.target.vx then
-    	local t = self.target_dist/self.initVelocity 
+    	local t = self:getTargetDist()/self:getVelocity()
     	tx,ty = self.target.vx * t + self.target.x, self.target.vy * t +  self.target.y
     else
     	tx,ty = self.target.x , self.target.y
@@ -119,10 +127,10 @@ end
 function bullet:checkRangeDamage()
 	local callback = function(fixture)
         local obj = fixture:getUserData()
-        if obj.tag == "ship" and obj.team ~= self.ship.team and not obj.destroyed then
+        if not obj.destroyed then
             local dist = math.getDistance(self.x,self.y,obj.x,obj.y)
             if  dist<self.weapon.explosion_range then
-                obj:damage(self.weapon.damage_point,self.weapon.damage_type)
+                obj:damage(self.weapon.damage_point,self.weapon.damage_type,self)
             end
         end
         return true
@@ -133,7 +141,9 @@ end
 
 function bullet:hit(target)
 	if self.weapon.explosion_range == 0 then
-		target:damage(self.weapon.damage_point,self.weapon.damage_type)
+		if not target.destroyed then
+			target:damage(self.weapon.damage_point,self.weapon.damage_type,self)
+		end
 		if self.through>0 then
 			self.through = self.through - 1
 		else
@@ -146,8 +156,8 @@ function bullet:hit(target)
 end
 
 function bullet:damage(point)
-	self.hp =self.hp - point
-	if self.hp<0 then
+	self.struct =self.struct - point
+	if self.struct<0 then
 		self:destroy()
 	end
 end

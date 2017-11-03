@@ -11,8 +11,8 @@ end
 
 function game:start()
     
-    for i = 1, 10 do
-        obj.ship.npc(-1,love.math.random(-500,500),
+    for i = 1, 1 do
+        obj.ship.test2(-1,love.math.random(-500,500),
             love.math.random(-500,500),love.math.random()*2*Pi)
     end
     --obj.ship.boss(2,1500,-1500)

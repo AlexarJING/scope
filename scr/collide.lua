@@ -3,21 +3,23 @@ local c={}
 local function begin(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	
-	if (objA.tag == "bullet" and objA.ship == objB) or 
-		(objB.tag == "bullet" and objB.ship == objA)then
+	if objA.ship == objB  or objB.ship == objA then
 		coll:setEnabled(false)
 		return 
 	end
-
 	if objA.tag == "bullet" and objB.tag == "bullet" then
 		coll:setEnabled(false)
-		--objA:destroy()
-		--objA:destroy()
 		return
 	end
 
-	if objA.tag == "bullet" and objB.tag == "ship" then
+	if objA.tag == "missile" and objB.tag == "bullet" then
+		--coll:setEnabled(false)
+		objA:destory()
+		objB:destroy()
+		return
+	end
+
+	if (objA.tag == "bullet" or objA.tag == "missile") and objB.tag == "ship" then
 		objA:hit(objB)
 		--objA:destroy()
 		--objB:damage(objA.damage_point,objA.damage_type)
@@ -27,8 +29,7 @@ end
 local function pre(a,b,coll)
 	local objA=a:getUserData()
 	local objB=b:getUserData()
-	if (objA.tag == "bullet" and objA.ship == objB) or 
-		(objB.tag == "bullet" and objB.ship == objA)then
+	if objA.ship == objB  or objB.ship == objA then
 		coll:setEnabled(false)
 		return 
 	end
