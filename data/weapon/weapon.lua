@@ -6,8 +6,8 @@ heat_volume = 100,
 heat_per_sec = 0,
 
 
-cool_down = 0.2, --发射间隔
-chargeTime = 0, --充能时间
+cool_down = 1, --发射间隔
+chargeTime = 1, --充能时间
 heat_per_shot = 3, --单次发射的热量
 heat_radiating = 5,
 fire_count = 1, --单次发射的子弹量

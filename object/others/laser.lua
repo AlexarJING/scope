@@ -65,7 +65,7 @@ function laser:update(dt)
 		self.fading = true
 	end
 	if self.fading then
-		self.power = self.power - 3*dt
+		self.power = self.power - (1/self.weapon.activeTime)*dt
 		if self.power <0 then
 			self.power = 0
 			self:destroy()
