@@ -47,3 +47,4 @@ Temporary Items
 .apdisk
 *.sublime-project
 *.sublime-workspace
+docs/temp/*
