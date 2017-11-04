@@ -1,6 +1,6 @@
 local core = class("input",obj.module.base)
 core.socket = "cockpit"
-core.mod_name = "input"
+core.mod_name = "驾驶舱"
 core.lockTime = 1
 local key = require "scr/key_conf"
 
@@ -48,8 +48,12 @@ function core:checkKey()
 			action.shield = true
 		end
 
-		if love.keyboard.isDown("escape") then
-			self.target = nil
+		if love.keyboard.isDown(key.shield) then
+			action.shield = true
+		end
+
+		if love.keyboard.isDown(key.teleport) then
+			action.teleport = true
 		end
 	end
 	self.ship.data.action = action
@@ -69,7 +73,7 @@ function core:checkMouse(dt)
     
     game.world:queryBoundingBox( mx-5, my-5, mx+5, my+5, callback )
     --if not currentTarget then return end
-    if self.target and self.target.destroyed then
+    if self.target and self.target.state~="active" then
 		self.target = nil
 	end
 
@@ -85,7 +89,7 @@ function core:checkMouse(dt)
 
 
     self.ship.data.target = self.target
-    if love.mouse.isDown(2) then
+    if love.mouse.isDown(key.aim) then
     	if self.ship.data.mouse then
     		self.ship.data.mouse.x,self.ship.data.mouse.y = mx,my
     	else

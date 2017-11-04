@@ -21,7 +21,7 @@ function map:draw()
 	if not self.ship.data.visual_radius then return end
 	local ship = self.ship
 	local world_w = ship.data.visual_radius*2
-	local fire_ctrl_w = ship.data.fire_ctrl_radius
+	local fire_ctrl_w = ship.data.fire_ctrl_radius or 1000
 	love.graphics.push()
 	love.graphics.setLineWidth(1)
 	love.graphics.translate(self.x + self.w/2, self.y + self.h/2)
@@ -33,7 +33,9 @@ function map:draw()
 	
 	for i,tar in ipairs(ship.data.world.visual) do
 		local x,y = tar.x - ship.x, tar.y - ship.y
-		love.graphics.circle("fill", x*self.w/world_w, y*self.h/world_w, 2) 
+		if tar.tag == "ship" then
+			love.graphics.circle("fill", x*self.w/world_w, y*self.h/world_w, 2)
+		end
 	end
 
 	love.graphics.pop()

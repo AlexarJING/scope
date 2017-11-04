@@ -1,7 +1,7 @@
 local mod = class("graphic",obj.module.base)
 mod.heat_produce = 0
 mod.energy_occupy = 0
-mod.mod_name = "user interface"
+mod.mod_name = "视图"
 mod.socket = "system"
 mod.color_style = {
 	theme_main = {0,255,0,255},
@@ -11,7 +11,7 @@ mod.color_style = {
 	unit_neutral = {255,255,155,255},
 	unit_enemy = {255,55,55,255},
 	exausted = {50,50,50,255},
-	energy_spot = {255,10,10,255},
+	energy_spot = {255,255,10,255},
 	fire_control = {100,150,255,255}
 }
 
@@ -116,23 +116,49 @@ function mod:drawShield(ship)
 	local data = ship.data
 	if not data then return end
 	if not data.action.shield or not  data.shield_coverage then return end
-	
 
 	for i = 0 , data.shield_coverage, 0.02 do
-		love.graphics.setColor(200, 150, 255,2)
+		love.graphics.setColor(200, 150, 255,5)
 		--love.graphics.setLineWidth(5-i*8)
 		love.graphics.arc("fill", 0, 0, ship.scale*1.2, -Pi/2 - i*Pi, -Pi/2 + i*Pi)
 		love.graphics.arc("line", 0, 0, ship.scale*1.2, -Pi/2 - i*Pi, -Pi/2 + i*Pi)
 	end
 end
 
-function mod:drawShip(ship)
+function mod:drawLaser(laser)
+	local slot = laser.slot
+	local range = laser.target and math.getDistance(
+		laser.x,laser.y,
+		laser.target_x,laser.target_y) or laser.weapon.activeRange
+	
+	love.graphics.push()
+		love.graphics.translate(slot.offx, slot.offy)
+		love.graphics.rotate(slot.rot)
+		for i=laser.power*laser.scale,1,-3 do
+			love.graphics.setLineWidth(i)
+			local c= 255-i*15<0 and 0 or 255-i*15
+			love.graphics.setColor(c, c, 255,a)
+			love.graphics.circle("fill", 0,0, i)
+			love.graphics.line(0, 0, 0, -range) 
+			love.graphics.circle("fill", 0,-range, laser.target and i or i/2)
+		end
+		love.graphics.setLineWidth(1)
+	love.graphics.pop()
+
+end
+
+
+function mod:drawObj(object)
 	self.cam:draw(function()	
 	love.graphics.push()
-	love.graphics.translate(ship.x, ship.y)
-	love.graphics.rotate(ship.angle)
-	love.graphics.outlinePolygon(ship.verts,ship.scale)
-	self:drawShield(ship)
+	love.graphics.translate(object.x, object.y)
+	love.graphics.rotate(object.angle)
+	if object.tag == "laser" then
+		self:drawLaser(object)
+	elseif object.verts then
+		love.graphics.outlinePolygon(object.verts,object.scale)
+		self:drawShield(object)
+	end
 	love.graphics.pop()
 	end)
 end
@@ -142,8 +168,7 @@ function mod:drawSlot(ship)
 	love.graphics.push()
 	love.graphics.translate(ship.x, ship.y)
 	love.graphics.rotate(ship.angle)	
-	for slot_type,slots in pairs(ship.slot) do
-		for i,slot in ipairs(slots) do
+		for i,slot in ipairs(ship.slot) do
 			if slot.plugin and slot.plugin.socket == "weapon" then
 				love.graphics.push()
 				love.graphics.translate(slot.offx*ship.scale, slot.offy*ship.scale)
@@ -155,14 +180,14 @@ function mod:drawSlot(ship)
 				love.graphics.pop()
 			end
 		end
-	end
+	
 	love.graphics.pop()
 	end)
 end
 
 function mod:drawPlayer()
 	love.graphics.setColor(self.color_style.unit_player)
-	self:drawShip(self.ship)
+	self:drawObj(self.ship)
 	self:drawSlot(self.ship)
 end
 
@@ -199,22 +224,26 @@ function mod:drawVisibleWorld()
             local dist_norm = (kx^2+ky^2)^0.5   -- 归一化距离
             local a=255-dist_norm*20
             love.graphics.setColor(color[1],color[2],color[3], color[4]*a)
-            if math.abs(kx)>math.abs(ky) then
-                love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
-            else
-                love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
-            end
+            if obj.tag == "ship" then
+	            if math.abs(kx)>math.abs(ky) then
+	                love.graphics.circle("fill", 0.5*math.abs(kx)/kx*w()+0.5*w(), 0.5*h()+h()/math.abs(kx)*ky*0.5, 8)
+	            else
+	                love.graphics.circle("fill", 0.5*w()+w()/math.abs(ky)*kx*0.5, 0.5*math.abs(ky)/ky*h()+0.5*h(), 8)
+	            end
+	        end
         else
 	    	love.graphics.setColor(color)
-			self:drawShip(obj)
-			self.fadeout:addLine(obj.ox,obj.oy,obj.x,obj.y,color,obj.scale)
+			self:drawObj(obj)
+			if obj.tag == "ship" then
+				self.fadeout:addLine(obj.ox,obj.oy,obj.x,obj.y,color,obj.scale)
+			end
         end
 	end
 	
 end
 
 
-local spot_size = 30 --heat == 100时
+local spot_size = 10 --heat == 100时
 
 function mod:drawEnergyWorld()
 	local world = self.ship.data.world.energy
@@ -223,8 +252,23 @@ function mod:drawEnergyWorld()
 	for i , obj in ipairs(world) do
 		if self.ship:inScreen(obj) then
 			love.graphics.setColor(self.color_style.energy_spot)
-			local scale = spot_size*(obj.heat or 0)/100
-			love.graphics.draw(self.energy_spot_mesh,obj.x,obj.y,0,scale,scale)
+			if obj.slot then
+				love.graphics.push()
+				love.graphics.translate(obj.x, obj.y)
+				love.graphics.rotate(obj.angle)
+				for i,slot in ipairs(obj.slot) do
+					if slot.plugin and slot.plugin.heat>0 or obj.heat and obj.heat>0 then
+						love.graphics.push()
+						love.graphics.translate(slot.offx*obj.scale, slot.offy*obj.scale)
+						love.graphics.rotate(slot.plugin.angle)
+						local scale = spot_size*(slot.plugin.heat/slot.plugin.heat_volume)
+						--print(slot.plugin.heat)
+						love.graphics.draw(self.energy_spot_mesh,0,0,0,scale,scale)
+						love.graphics.pop()
+					end
+				end
+				love.graphics.pop()
+			end
 		end
 	end
 	end)
@@ -273,10 +317,10 @@ function mod:drawAnalyser()
 			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2*ship.energy/ship.energy_max, 5)
 			love.graphics.setColor(100, 100, 100, 255)
 			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-15, ship.scale*2*ship.energy_occupied/ship.energy_max, 5)
-			love.graphics.setColor(255, 255, 0, 50)
-			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2, 5)
-			love.graphics.setColor(255, 255, 0, 255)
-			love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2*ship.heat/ship.heat_max, 5)
+			--love.graphics.setColor(255, 255, 0, 50)
+			--love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2, 5)
+			--love.graphics.setColor(255, 255, 0, 255)
+			--love.graphics.rectangle("fill", ship.x-ship.scale, ship.y-ship.scale-10, ship.scale*2*ship.heat/ship.heat_max, 5)
 		end
 	end
 	end)
@@ -318,6 +362,7 @@ function mod:makeExplosion(t)
 	game.hud.cam:shake()	
 	self.explosion:add(t.x,t.y,t.angle,t.verts,t.scale,self:getColor(t))
 end
+
 
 function mod:setZoom(d)
     local last = self.zoom

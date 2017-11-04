@@ -26,7 +26,7 @@ function actions:update(dt)
 		}
 		if tab.mod then
 			tab.name = tab.mod.mod_name
-			tab.timer = tab.mod.cd_timer
+			tab.timer = tab.mod.cd_timer or 0
 			tab.cd = tab.mod.cool_down
 		else
 			tab.name = "not used"
@@ -46,6 +46,8 @@ function actions:update(dt)
 					self.x + (i-1)*self.bw+6*i , 
 					self.y+unit,self.bw,self.bh).hit then
 					mod.slot.enabled = not mod.slot.enabled
+					self.ship:slot_enable(mod.slot,mod.slot.enabled)
+					
 				end
 			end
 		end
@@ -60,6 +62,7 @@ function actions:update(dt)
 					self.x + (i-1)*self.bw+6*i,
 					self.y+unit-self.bh,self.bw,self.bh).hit then
 					mod.slot.enabled = not mod.slot.enabled
+					self.ship:slot_enable(mod.slot,mod.slot.enabled)
 				end
 			end
 		end
@@ -72,6 +75,7 @@ function actions:update(dt)
 					self.x + (i-13)*self.bw+6*(i-13), 
 					self.y+unit,self.bw,self.bh).hit then
 					mod.slot.enabled = not mod.slot.enabled
+					self.ship:slot_enable(mod.slot,mod.slot.enabled)
 				end
 			end
 		end

@@ -1,11 +1,11 @@
 return {
-	ship_name = "test", 
-	grade = 5,
+	ship_name = "test2",
+	grade = 1,
 	scale = 30,
 	matt = 2000,
 	struct_max = 200,
 	energy_max = 100,
-	energy_generate_effect = 5,
+	energy_generate_effect = 100,
 	verts = {0,-1,1,1,0,0.5,-1,1},
 	slot = {
 		{socket = "universal",offx = 0.3, offy = -0.3, rot = 1/12,enabled = true},
@@ -22,19 +22,9 @@ return {
 		{socket = "universal",offx = 0,offy = 0,rot = 0,enabled = true},	
 		},
 	mod_conf = {
-		obj.module.weapon.laser,
-		--obj.module.weapon.weapon,
-		--obj.module.weapon.weapon,
+		obj.module.weapon.missile,
 		obj.module.engine.engine,
-		obj.module.engine.engine,
-		obj.module.cockpit.base,
-		obj.module.hud.base,
-		obj.module.radar.visible_radar,
-		obj.module.system.teleport,
-		obj.module.radar.energy_radar,
-		obj.module.radar.fire_control,
-		obj.module.system.shield,
-		obj.module.radar.analyser
+		obj.module.system.ai,
 	},
 	stock = {
 

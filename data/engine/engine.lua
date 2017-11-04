@@ -1,14 +1,12 @@
-
---[[
-能量占用
-名称
-价格
-侧方向动力
-前进动力
-转向动力
-每秒产热
-engine.sidePower = 50
-engine.turnPower = 150
-engine.pushPower = 50
-engine.heat_per_sec = 1
-engine.mod_name = "pareto"]]
+return {
+	mod_name = "灰熊",
+	energy_occupy = 30,
+	heat_volume = 100,
+	heat_radiating = 10,
+	heat_per_sec =10,
+	heat_per_shot = 0,
+	socket = "engine",
+	sidePower = 50,
+	turnPower = 150,
+	pushPower = 20,
+}

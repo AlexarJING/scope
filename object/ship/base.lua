@@ -1,8 +1,6 @@
 local ship = class("ship_base")
 ship.struct_max = 100
 ship.energy_max = 100
-ship.heat_max = 100
-ship.cool_down_effect = 50
 ship.energy_generate_effect = 100
 ship.tag = "ship"
 ship.scale = 30
@@ -41,8 +39,8 @@ function ship:init(team,x,y,rotation)
 	self.scale = self.scale
 	self.angle = rotation or 0
 	self:physicInit()
-	self.struct = 10
-	self.energy = 10
+	self.struct = self.struct_max
+	self.energy = self.energy_max
 	self.heat = 0
 	self.energy_occupied = 0
 	self.body:setAngularDamping(self.angularDamping)
@@ -91,14 +89,6 @@ end
 
 
 function ship:energy_ctrl(dt)
-	self.energy_occupied = 0
-	for socket, tab in pairs(self.slot) do
-		for i, slot in ipairs(tab) do
-			if slot.plugin then
-				self.energy_occupied = self.energy_occupied + slot.plugin.energy_occupy
-			end
-		end
-	end
 	self.energy = self.energy + self.energy_generate_effect*dt
 	if self.energy>self.energy_max then
 		self.energy = self.energy_max
@@ -112,7 +102,7 @@ function ship:update(dt)
 	if self.state == "active" then
 		self:slot_update(dt)
 	end
-	self:heat_ctrl(dt)
+	--self:heat_ctrl(dt)
 	self:energy_ctrl(dt)
 end
 
@@ -155,66 +145,78 @@ function ship:slot_update(dt)
 	end
 end
 
-
+function ship:slot_enable(slot,toggle)
+	slot.enabled = toggle
+	if slot.plugin and not toggle then
+		slot.plugin:shut_down()
+		self.energy_occupied = self.energy_occupied - slot.plugin.energy_occupy
+	elseif  slot.plugin and toggle then
+		self.energy_occupied = self.energy_occupied + slot.plugin.energy_occupy
+	end
+end
 
 function ship:add_plugin(plugin,position)
 	local slot = self.slot[position] 
 	if slot and (plugin.socket == slot.socket or slot.socket == "universal") and slot.plugin == nil then
 		slot.plugin = plugin(self,slot)
+		self.energy_occupied = self.energy_occupied + slot.plugin.energy_occupy
 	end
 end
 
-function ship:heat_ctrl(dt)
-	if self.heat>=self.heat_max then
-		self.heat = self.heat_max
-		self.overheat = true
-		for socket, tab in pairs(self.slot) do
-			for i, slot in ipairs(tab) do
-				slot.enabled = false 
-			end
-		end
-		
-	end
-	self.heat = self.heat - dt*self.cool_down_effect
-	
-	if self.heat<0 then 
-		self.heat=0
-		if self.overheat then
-			self.overheat = false 
-			for socket, tab in pairs(self.slot) do
-				for i, slot in ipairs(tab) do
-					slot.enabled = true 
-				end
-			end
-		end
-	end
-end
 
-function ship:damage(damage_point,damage_type)
+function ship:damage(damage_point,damage_type,bullet)
 	if self.state~="active" or self.destroyed then return end
-	
-	if self.data.action.shield and self.energy>0 then
-		--
-	end
-	self.struct = self.struct - damage_point
+	local azi = math.unitAngle(self:getAzi(bullet))
 
-	if self.struct<=0 then self:exhaust()end
+	if self.data.action.shield and self.data.shield_coverage~=0 then 
+		if azi>math.unitAngle(self.angle)-self.data.shield_coverage*Pi and 
+		azi<math.unitAngle(self.angle)+self.data.shield_coverage*Pi then
+		self:damage_shield(damage_point,damage_type)
+		end
+	else
+		self:damage_direct(damage_point,damage_type)
+	end	
+end
 
-	if damage_type == "structure" then
-
+function ship:damage_shield(damage_point,damage_type)
+	local energy = self.energy
+	local shield_power = self.data.shield_power
+	local low = self.energy_occupied
+	if damage_type == "struct" then
+		energy = energy - damage_point*1.5
+		if energy<=low then
+			energy = low
+			self:damage_direct((low-energy)/1.5,damage_type)
+		end
 	elseif damage_type == "energy" then
-
+		energy = energy - damage_point*0.5
+		if energy<=low then
+			energy = low
+			self:damage_direct((low-energy)/0.5,damage_type)
+		end
 	elseif damage_type == "quantum" then
-
+		energy = energy - damage_point
+		if energy<=low then
+			energy = low
+			self:damage_direct((low-energy),damage_type)
+		end
 	end
+
+	self.energy = energy
 end
 
-function ship:damage_shield()
-
-end
-
-function ship:damage_armor()
-
+function ship:damage_direct(damage_point,damage_type)
+	if damage_type == "struct" then
+		self.struct = self.struct - damage_point
+	elseif damage_type == "energy" then
+		self.struct = self.struct - damage_point*2
+	elseif damage_type == "quantum" then
+		self.struct = self.struct - damage_point
+	end
+	if self.struct<=0 then 
+		self.struct= 0
+		self:exhaust()
+	end
 end
 
 

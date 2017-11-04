@@ -39,4 +39,9 @@ function radar:findTarget()
    self.ship.data.world[self.detect_type] = world
 
 end
+
+
+function radar:shut_down()
+    self.ship.data.world[self.detect_type] = {}
+end
 return radar

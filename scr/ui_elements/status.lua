@@ -23,13 +23,14 @@ function status:update(dt)
 end
 
 function status:draw()
+	if self.ship.destroyed then return end
 	local ship = self.miniship
 	love.graphics.setColor(self.color.normal.fg)
 	love.graphics.rectangle("line", ship.x, ship.y, ship.w, ship.h)
 	love.graphics.push()
 	love.graphics.translate(ship.x + ship.w/2,ship.y+ship.h/2)
 
-	love.graphics.rotate(-ship.obj.angle)
+	
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.printf("-Y", -ship.w/2, -ship.h/2,ship.w,"center")
 	love.graphics.printf("+Y", -ship.w/2, ship.h/2 -love.graphics.getFont():getHeight(),ship.w,"center")
@@ -44,7 +45,6 @@ function status:draw()
 	local vx,vy = ship.obj.body:getLinearVelocity()
 	local angle = math.getRot(vx,vy,0,0)
 	love.graphics.circle("fill", -math.sin(angle)*ship.w/2, math.cos(angle)*ship.w/2,3)
-
 	love.graphics.rotate(ship.obj.angle)
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.outlinePolygon(ship.obj.verts,unit*2)
@@ -71,16 +71,16 @@ function status:draw()
     love.graphics.setColor(100, 100, 100, 255)
     love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy, bar.w*player.energy_occupied/player.energy_max, bar.h)
     love.graphics.setColor(255, 255, 0, 50)
-    love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w, bar.h)
-    love.graphics.setColor(255, 255, 0, 255)
-    love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w*player.heat/player.heat_max,bar.h)
+    --love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w, bar.h)
+    --love.graphics.setColor(255, 255, 0, 255)
+    --love.graphics.rectangle("fill", bar.x + bar.offx , bar.y + bar.offy*2, bar.w*player.heat/player.heat_max,bar.h)
     love.graphics.setColor(255, 255, 255, 255)
     love.graphics.printf(string.format("%3d/%3d",player.struct,player.struct_max),
      bar.x + bar.offx , bar.y , bar.w,"center")
     love.graphics.printf(string.format("%3d/%3d/%3d",player.energy_occupied,player.energy-player.energy_occupied,player.energy_max),
     	bar.x + bar.offx , bar.y + bar.offy, bar.w,"center")
-    love.graphics.printf(string.format("%3d/%3d",player.heat,player.heat_max),
-    	bar.x + bar.offx , bar.y + bar.offy*2, bar.w,"center")
+    --love.graphics.printf(string.format("%3d/%3d",player.heat,player.heat_max),
+    --	bar.x + bar.offx , bar.y + bar.offy*2, bar.w,"center")
 end
 
 
