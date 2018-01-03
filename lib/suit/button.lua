@@ -29,6 +29,7 @@ return function(core, text, ...)
 		entered = core:isHovered(opt.id) and not core:wasHovered(opt.id),
 		left = not core:isHovered(opt.id) and core:wasHovered(opt.id),
         drag = core:mouseDragRelease(opt.id),
-        draw = drawFunc
+        draw = drawFunc,
+        key = core.mouse_pressed
 	}
 end

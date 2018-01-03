@@ -89,6 +89,11 @@ function suit:registerMouseHit(id, ul_x, ul_y, hit)
 		self.hovered = id
 		if self.active == nil and self.mouse_button_down then
 			self.active = id
+            if love.mouse.isDown(1) then
+                self.mouse_pressed = 1
+            elseif love.mouse.isDown(2) then
+                self.mouse_pressed = 2
+            end
 		end
 	end
 	return self:getStateName(id)
@@ -179,7 +184,7 @@ function suit:enterFrame()
 	end
 
 	self.hovered_last, self.hovered = self.hovered, nil
-	self:updateMouse(love.mouse.getX(), love.mouse.getY(), love.mouse.isDown(1))
+	self:updateMouse(love.mouse.getX(), love.mouse.getY(), love.mouse.isDown(1) or love.mouse.isDown(2))
 	self.key_down, self.textchar = nil, ""
 	self:grabKeyboardFocus(NONE)
 	self.hit = nil

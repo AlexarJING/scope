@@ -1,4 +1,4 @@
-obj = {}
+cls = {}
 
 local function loadDir(dir,tab)
 	local objs = tab or {}
@@ -9,49 +9,75 @@ local function loadDir(dir,tab)
     return objs
 end
 
-local function loadMod(socket)
-	local dir = "object/module/"..socket.."/"
-	obj.module[socket] = {}
-	obj.module[socket].base = require(dir..socket) --所有的base均为同名文件
-	--loadDir(dir,obj.module[socket])
-end
-
 local function makeClass(data,base)
-	local cls = class(data.ship_name or data.mod_name,base)
+	local name = data.obj_name or data.mod_name
+    local cls = class(name,base)
 	for k,v in pairs(data) do
 		cls[k] = v
 	end
-	return cls
+	return cls,name
 end
 
-obj.others = loadDir("object/others/")
-
-obj.module = {}
-obj.module.base = require "object/module/base"
-local sockets = {"cockpit","engine","hud","radar","system","weapon"}
-for i,mod  in ipairs(sockets) do
-	loadMod(mod)
-end
-
-obj.ship = {}
-obj.ship.base = require "object/ship/base"
-
-local function loadCls()
-	for _,folder in ipairs(love.filesystem.getDirectoryItems("data")) do
-        for _,fullname in ipairs(love.filesystem.getDirectoryItems("data/"..folder.."/")) do
-	        local name = fullname:sub(1,-5)
-	        if folder ~= "ship"  and folder ~="resource" then 	     
-	        	obj.module[folder][name]=makeClass(require("data/"..folder.."/"..name),obj.module[folder].base)
-	        end
-
-	    end   
+local function loadModule()
+    local dir = "module/"
+    cls.mod = {}
+    cls.mod.base = require(dir.."base")
+	for _,mod_cls in ipairs(love.filesystem.getDirectoryItems(dir)) do
+        if love.filesystem.isDirectory(dir..mod_cls) then
+            cls.mod[mod_cls] = {}
+            local base = require(dir..mod_cls.."/base")
+            cls.mod[mod_cls].base = base
+            for _,fullname in ipairs(love.filesystem.getDirectoryItems(dir..mod_cls)) do
+                if love.filesystem.isDirectory(dir..mod_cls.."/"..fullname) then
+                    local c = require(dir..mod_cls.."/"..fullname.."/"..fullname)
+                    cls.mod[mod_cls][c.mod_name] = c
+                else
+                    local name = fullname:sub(1,-5)
+                    local data = require(dir..mod_cls.."/"..name)
+                    local c,mod_name = makeClass(data,base)
+                    cls.mod[mod_cls][mod_name] = c
+                end
+            end
+        end
     end
-
-    for _,fullname in ipairs(love.filesystem.getDirectoryItems("data/ship/")) do
-        local name = fullname:sub(1,-5)
-        obj.ship[name]=makeClass(require("data/ship/"..name),obj.ship.base)  
-	end   
+    return objs
 end
 
 
-loadCls()
+
+local function loadObj()
+    local dir = "object/"
+    cls.obj = {}
+    cls.obj.base = require(dir.."base")
+	for _,obj_cls in ipairs(love.filesystem.getDirectoryItems(dir)) do
+        if love.filesystem.isDirectory(dir..obj_cls) then
+            cls.obj[obj_cls] = {}
+            if love.filesystem.exists(dir..obj_cls.."/base.lua") then
+                local base = require(dir..obj_cls.."/base")
+                cls.obj[obj_cls].base = base
+                for _,fullname in ipairs(love.filesystem.getDirectoryItems(dir..obj_cls)) do
+                    
+                    if love.filesystem.isDirectory(fullname) then
+                        cls.obj[obj_cls][fullname] = require(dir..obj_cls.."/"..fullname.."/"..fullname)
+                    else
+                        local name = fullname:sub(1,-5)
+                        local data = require(dir..obj_cls.."/"..name)
+                        local c,obj_name = makeClass(data,base)
+                        cls.obj[obj_cls][obj_name] = c
+                    end
+                end
+            else
+                for _,fullname in ipairs(love.filesystem.getDirectoryItems(dir..obj_cls)) do
+                    local name = fullname:sub(1,-5)
+                    local c = require(dir..obj_cls.."/"..name)
+                    cls.obj[obj_cls][c.obj_name] = c  
+                end
+            end
+        end
+    end
+    return objs
+end
+
+
+loadModule()
+loadObj()

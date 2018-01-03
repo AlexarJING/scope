@@ -1028,26 +1028,6 @@ function collision.newPolygon(x,y,verts,loop,t,density)
 end
 
 
-love.anydown={}
-function love.keypressed(key,...)
-	love.anydown[key]=true
-end
-function love.keyreleased(key,...)
-	love.anydown[key]=nil
-end
-function love.mousepressed(x,y,key,...)
-	love.anydown[key]=true
-end
-function love.mousereleased(x,y,key,...)
-	love.anydown[key]=nil
-end
-function love.update(...)
-	for k,v in pairs(love.anydown) do
-		if love.keydown then 
-			love.keydown(k) 
-		end
-	end
-end
 
 love.system.run=love.system.openURL
 
@@ -1082,7 +1062,7 @@ end
 
 if __CONSOLE then
 	local console_buff = {}
-	local o_lovedraw = love.draw
+	--local o_lovedraw = love.draw
 	local o_print = print
 	local consoleFont = love.graphics.newFont(10)
 	function print(...) 
@@ -1099,11 +1079,11 @@ if __CONSOLE then
 	end
 
 	function love.draw()	
-		o_lovedraw()
+		--o_lovedraw()
 		love.graphics.setColor(255,0,0)
 		love.graphics.setFont(consoleFont)
 		for i,line in ipairs(console_buff) do
-			love.graphics.print(line,10,10+10*i)
+			love.graphics.print(line,100,10+10*i)
 		end
 	end
 end

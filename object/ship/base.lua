@@ -1,8 +1,9 @@
-local ship = class("ship_base")
+local ship = class("ship_base",cls.obj.base)
 ship.struct_max = 100
 ship.energy_max = 100
 ship.energy_generate_effect = 100
 ship.tag = "ship"
+ship.obj_name = "ship_base"
 ship.scale = 30
 ship.mass = 2000
 
@@ -156,9 +157,11 @@ function ship:slot_enable(slot,toggle)
 end
 
 function ship:add_plugin(plugin,position)
-	local slot = self.slot[position] 
-	if slot and (plugin.socket == slot.socket or slot.socket == "universal") and slot.plugin == nil then
-		slot.plugin = plugin(self,slot)
+	--print(plugin,position)
+    local slot = self.slot[position] 
+	if slot and (plugin.socket == slot.socket or slot.socket == "universal") 
+        and slot.plugin == nil then
+        slot.plugin = plugin(self,slot)
 		self.energy_occupied = self.energy_occupied + slot.plugin.energy_occupy
 	end
 end
